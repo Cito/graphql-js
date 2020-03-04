@@ -438,7 +438,20 @@ function validateUnionMembers(
   }
 
   const includedTypeNames = Object.create(null);
+  const includedInvalidTypes = Object.create(null);
   for (const memberType of memberTypes) {
+    if (!isObjectType(memberType)) {
+      const typeString = inspect(memberType);
+      if (!includedInvalidTypes[typeString]) {
+        context.reportError(
+          `Union type ${union.name} can only include Object types, ` +
+            `it cannot include ${typeString}.`,
+          getUnionMemberTypeNodes(union, String(memberType)),
+        );
+        includedInvalidTypes[typeString] = true;
+      }
+      continue;
+    }
     if (includedTypeNames[memberType.name]) {
       context.reportError(
         `Union type ${union.name} can only include type ${memberType.name} once.`,
@@ -447,13 +460,6 @@ function validateUnionMembers(
       continue;
     }
     includedTypeNames[memberType.name] = true;
-    if (!isObjectType(memberType)) {
-      context.reportError(
-        `Union type ${union.name} can only include Object types, ` +
-          `it cannot include ${inspect(memberType)}.`,
-        getUnionMemberTypeNodes(union, String(memberType)),
-      );
-    }
   }
 }
 
