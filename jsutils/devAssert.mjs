@@ -1,7 +1,5 @@
-/* istanbul ignore file */
-export default function devAssert(condition, message) {
-  var booleanCondition = Boolean(condition);
-  /* istanbul ignore else */
+export function devAssert(condition, message) {
+  const booleanCondition = Boolean(condition);
 
   if (!booleanCondition) {
     throw new Error(message);

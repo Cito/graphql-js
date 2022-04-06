@@ -1,10 +1,22 @@
 {
   "name": "graphql",
-  "version": "14.4.2",
+  "version": "16.3.0",
   "description": "A Query Language and Runtime which can target any service.",
   "license": "MIT",
   "main": "index",
   "module": "index.mjs",
+  "typesVersions": {
+    ">=4.1.0": {
+      "*": [
+        "*"
+      ]
+    },
+    "*": {
+      "*": [
+        "NotSupportedTSVersion.d.ts"
+      ]
+    }
+  },
   "sideEffects": false,
   "homepage": "https://github.com/graphql/graphql-js",
   "bugs": {
@@ -19,9 +31,9 @@
     "graphql-js"
   ],
   "engines": {
-    "node": ">= 6.x"
+    "node": "^12.22.0 || ^14.16.0 || >=16.0.0"
   },
-  "dependencies": {
-    "iterall": "^1.2.2"
+  "publishConfig": {
+    "tag": "latest"
   }
 }

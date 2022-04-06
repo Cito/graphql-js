@@ -1,8 +1,9 @@
-/* istanbul ignore file */
-export default function invariant(condition, message) {
-  var booleanCondition = Boolean(condition);
+export function invariant(condition, message) {
+  const booleanCondition = Boolean(condition);
 
   if (!booleanCondition) {
-    throw new Error(message || 'Unexpected invariant triggered');
+    throw new Error(
+      message != null ? message : 'Unexpected invariant triggered.',
+    );
   }
 }

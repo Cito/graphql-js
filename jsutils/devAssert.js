@@ -1,14 +1,12 @@
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
+Object.defineProperty(exports, '__esModule', {
+  value: true,
 });
-exports.default = devAssert;
+exports.devAssert = devAssert;
 
-/* istanbul ignore file */
 function devAssert(condition, message) {
-  var booleanCondition = Boolean(condition);
-  /* istanbul ignore else */
+  const booleanCondition = Boolean(condition);
 
   if (!booleanCondition) {
     throw new Error(message);
