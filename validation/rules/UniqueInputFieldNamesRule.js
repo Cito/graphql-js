@@ -1,14 +1,8 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.UniqueInputFieldNamesRule = UniqueInputFieldNamesRule;
-
-var _invariant = require('../../jsutils/invariant.js');
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.UniqueInputFieldNamesRule = void 0;
+const invariant_js_1 = require('../../jsutils/invariant.js');
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
 /**
  * Unique input field names
  *
@@ -26,24 +20,19 @@ function UniqueInputFieldNamesRule(context) {
         knownNameStack.push(knownNames);
         knownNames = Object.create(null);
       },
-
       leave() {
         const prevKnownNames = knownNameStack.pop();
-        prevKnownNames || (0, _invariant.invariant)(false);
+        prevKnownNames != null || invariant(false);
         knownNames = prevKnownNames;
       },
     },
-
     ObjectField(node) {
       const fieldName = node.name.value;
-
       if (knownNames[fieldName]) {
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `There can be only one input field named "${fieldName}".`,
-            {
-              nodes: [knownNames[fieldName], node.name],
-            },
+            { nodes: [knownNames[fieldName], node.name] },
           ),
         );
       } else {
@@ -52,3 +41,4 @@ function UniqueInputFieldNamesRule(context) {
     },
   };
 }
+exports.UniqueInputFieldNamesRule = UniqueInputFieldNamesRule;

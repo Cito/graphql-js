@@ -1,233 +1,237 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-Object.defineProperty(exports, 'BreakingChangeType', {
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.findDangerousChanges =
+  exports.findBreakingChanges =
+  exports.DangerousChangeType =
+  exports.BreakingChangeType =
+  exports.doTypesOverlap =
+  exports.isTypeSubTypeOf =
+  exports.isEqualType =
+  exports.stripIgnoredCharacters =
+  exports.separateOperations =
+  exports.concatAST =
+  exports.coerceInputValue =
+  exports.visitWithTypeInfo =
+  exports.TypeInfo =
+  exports.astFromValue =
+  exports.valueFromASTUntyped =
+  exports.valueFromAST =
+  exports.typeFromAST =
+  exports.printIntrospectionSchema =
+  exports.printType =
+  exports.printSchema =
+  exports.lexicographicSortSchema =
+  exports.extendSchema =
+  exports.buildSchema =
+  exports.buildASTSchema =
+  exports.buildClientSchema =
+  exports.introspectionFromSchema =
+  exports.getOperationAST =
+  exports.getIntrospectionQuery =
+    void 0;
+// Produce the GraphQL query recommended for a full schema introspection.
+var getIntrospectionQuery_js_1 = require('./getIntrospectionQuery.js');
+Object.defineProperty(exports, 'getIntrospectionQuery', {
   enumerable: true,
   get: function () {
-    return _findBreakingChanges.BreakingChangeType;
+    return getIntrospectionQuery_js_1.getIntrospectionQuery;
   },
 });
-Object.defineProperty(exports, 'DangerousChangeType', {
+// Gets the target Operation from a Document.
+var getOperationAST_js_1 = require('./getOperationAST.js');
+Object.defineProperty(exports, 'getOperationAST', {
   enumerable: true,
   get: function () {
-    return _findBreakingChanges.DangerousChangeType;
+    return getOperationAST_js_1.getOperationAST;
   },
 });
-Object.defineProperty(exports, 'TypeInfo', {
+// Convert a GraphQLSchema to an IntrospectionQuery.
+var introspectionFromSchema_js_1 = require('./introspectionFromSchema.js');
+Object.defineProperty(exports, 'introspectionFromSchema', {
   enumerable: true,
   get: function () {
-    return _TypeInfo.TypeInfo;
+    return introspectionFromSchema_js_1.introspectionFromSchema;
   },
 });
-Object.defineProperty(exports, 'assertValidName', {
-  enumerable: true,
-  get: function () {
-    return _assertValidName.assertValidName;
-  },
-});
-Object.defineProperty(exports, 'astFromValue', {
-  enumerable: true,
-  get: function () {
-    return _astFromValue.astFromValue;
-  },
-});
-Object.defineProperty(exports, 'buildASTSchema', {
-  enumerable: true,
-  get: function () {
-    return _buildASTSchema.buildASTSchema;
-  },
-});
+// Build a GraphQLSchema from an introspection result.
+var buildClientSchema_js_1 = require('./buildClientSchema.js');
 Object.defineProperty(exports, 'buildClientSchema', {
   enumerable: true,
   get: function () {
-    return _buildClientSchema.buildClientSchema;
+    return buildClientSchema_js_1.buildClientSchema;
+  },
+});
+// Build a GraphQLSchema from GraphQL Schema language.
+var buildASTSchema_js_1 = require('./buildASTSchema.js');
+Object.defineProperty(exports, 'buildASTSchema', {
+  enumerable: true,
+  get: function () {
+    return buildASTSchema_js_1.buildASTSchema;
   },
 });
 Object.defineProperty(exports, 'buildSchema', {
   enumerable: true,
   get: function () {
-    return _buildASTSchema.buildSchema;
+    return buildASTSchema_js_1.buildSchema;
   },
 });
-Object.defineProperty(exports, 'coerceInputValue', {
-  enumerable: true,
-  get: function () {
-    return _coerceInputValue.coerceInputValue;
-  },
-});
-Object.defineProperty(exports, 'concatAST', {
-  enumerable: true,
-  get: function () {
-    return _concatAST.concatAST;
-  },
-});
-Object.defineProperty(exports, 'doTypesOverlap', {
-  enumerable: true,
-  get: function () {
-    return _typeComparators.doTypesOverlap;
-  },
-});
+// Extends an existing GraphQLSchema from a parsed GraphQL Schema language AST.
+var extendSchema_js_1 = require('./extendSchema.js');
 Object.defineProperty(exports, 'extendSchema', {
   enumerable: true,
   get: function () {
-    return _extendSchema.extendSchema;
+    return extendSchema_js_1.extendSchema;
   },
 });
-Object.defineProperty(exports, 'findBreakingChanges', {
-  enumerable: true,
-  get: function () {
-    return _findBreakingChanges.findBreakingChanges;
-  },
-});
-Object.defineProperty(exports, 'findDangerousChanges', {
-  enumerable: true,
-  get: function () {
-    return _findBreakingChanges.findDangerousChanges;
-  },
-});
-Object.defineProperty(exports, 'getIntrospectionQuery', {
-  enumerable: true,
-  get: function () {
-    return _getIntrospectionQuery.getIntrospectionQuery;
-  },
-});
-Object.defineProperty(exports, 'getOperationAST', {
-  enumerable: true,
-  get: function () {
-    return _getOperationAST.getOperationAST;
-  },
-});
-Object.defineProperty(exports, 'getOperationRootType', {
-  enumerable: true,
-  get: function () {
-    return _getOperationRootType.getOperationRootType;
-  },
-});
-Object.defineProperty(exports, 'introspectionFromSchema', {
-  enumerable: true,
-  get: function () {
-    return _introspectionFromSchema.introspectionFromSchema;
-  },
-});
-Object.defineProperty(exports, 'isEqualType', {
-  enumerable: true,
-  get: function () {
-    return _typeComparators.isEqualType;
-  },
-});
-Object.defineProperty(exports, 'isTypeSubTypeOf', {
-  enumerable: true,
-  get: function () {
-    return _typeComparators.isTypeSubTypeOf;
-  },
-});
-Object.defineProperty(exports, 'isValidNameError', {
-  enumerable: true,
-  get: function () {
-    return _assertValidName.isValidNameError;
-  },
-});
+// Sort a GraphQLSchema.
+var lexicographicSortSchema_js_1 = require('./lexicographicSortSchema.js');
 Object.defineProperty(exports, 'lexicographicSortSchema', {
   enumerable: true,
   get: function () {
-    return _lexicographicSortSchema.lexicographicSortSchema;
+    return lexicographicSortSchema_js_1.lexicographicSortSchema;
   },
 });
-Object.defineProperty(exports, 'printIntrospectionSchema', {
-  enumerable: true,
-  get: function () {
-    return _printSchema.printIntrospectionSchema;
-  },
-});
+// Print a GraphQLSchema to GraphQL Schema language.
+var printSchema_js_1 = require('./printSchema.js');
 Object.defineProperty(exports, 'printSchema', {
   enumerable: true,
   get: function () {
-    return _printSchema.printSchema;
+    return printSchema_js_1.printSchema;
   },
 });
 Object.defineProperty(exports, 'printType', {
   enumerable: true,
   get: function () {
-    return _printSchema.printType;
+    return printSchema_js_1.printType;
   },
 });
-Object.defineProperty(exports, 'separateOperations', {
+Object.defineProperty(exports, 'printIntrospectionSchema', {
   enumerable: true,
   get: function () {
-    return _separateOperations.separateOperations;
+    return printSchema_js_1.printIntrospectionSchema;
   },
 });
-Object.defineProperty(exports, 'stripIgnoredCharacters', {
-  enumerable: true,
-  get: function () {
-    return _stripIgnoredCharacters.stripIgnoredCharacters;
-  },
-});
+// Create a GraphQLType from a GraphQL language AST.
+var typeFromAST_js_1 = require('./typeFromAST.js');
 Object.defineProperty(exports, 'typeFromAST', {
   enumerable: true,
   get: function () {
-    return _typeFromAST.typeFromAST;
+    return typeFromAST_js_1.typeFromAST;
   },
 });
+// Create a JavaScript value from a GraphQL language AST with a type.
+var valueFromAST_js_1 = require('./valueFromAST.js');
 Object.defineProperty(exports, 'valueFromAST', {
   enumerable: true,
   get: function () {
-    return _valueFromAST.valueFromAST;
+    return valueFromAST_js_1.valueFromAST;
   },
 });
+// Create a JavaScript value from a GraphQL language AST without a type.
+var valueFromASTUntyped_js_1 = require('./valueFromASTUntyped.js');
 Object.defineProperty(exports, 'valueFromASTUntyped', {
   enumerable: true,
   get: function () {
-    return _valueFromASTUntyped.valueFromASTUntyped;
+    return valueFromASTUntyped_js_1.valueFromASTUntyped;
+  },
+});
+// Create a GraphQL language AST from a JavaScript value.
+var astFromValue_js_1 = require('./astFromValue.js');
+Object.defineProperty(exports, 'astFromValue', {
+  enumerable: true,
+  get: function () {
+    return astFromValue_js_1.astFromValue;
+  },
+});
+// A helper to use within recursive-descent visitors which need to be aware of the GraphQL type system.
+var TypeInfo_js_1 = require('./TypeInfo.js');
+Object.defineProperty(exports, 'TypeInfo', {
+  enumerable: true,
+  get: function () {
+    return TypeInfo_js_1.TypeInfo;
   },
 });
 Object.defineProperty(exports, 'visitWithTypeInfo', {
   enumerable: true,
   get: function () {
-    return _TypeInfo.visitWithTypeInfo;
+    return TypeInfo_js_1.visitWithTypeInfo;
   },
 });
-
-var _getIntrospectionQuery = require('./getIntrospectionQuery.js');
-
-var _getOperationAST = require('./getOperationAST.js');
-
-var _getOperationRootType = require('./getOperationRootType.js');
-
-var _introspectionFromSchema = require('./introspectionFromSchema.js');
-
-var _buildClientSchema = require('./buildClientSchema.js');
-
-var _buildASTSchema = require('./buildASTSchema.js');
-
-var _extendSchema = require('./extendSchema.js');
-
-var _lexicographicSortSchema = require('./lexicographicSortSchema.js');
-
-var _printSchema = require('./printSchema.js');
-
-var _typeFromAST = require('./typeFromAST.js');
-
-var _valueFromAST = require('./valueFromAST.js');
-
-var _valueFromASTUntyped = require('./valueFromASTUntyped.js');
-
-var _astFromValue = require('./astFromValue.js');
-
-var _TypeInfo = require('./TypeInfo.js');
-
-var _coerceInputValue = require('./coerceInputValue.js');
-
-var _concatAST = require('./concatAST.js');
-
-var _separateOperations = require('./separateOperations.js');
-
-var _stripIgnoredCharacters = require('./stripIgnoredCharacters.js');
-
-var _typeComparators = require('./typeComparators.js');
-
-var _assertValidName = require('./assertValidName.js');
-
-var _findBreakingChanges = require('./findBreakingChanges.js');
+// Coerces a JavaScript value to a GraphQL type, or produces errors.
+var coerceInputValue_js_1 = require('./coerceInputValue.js');
+Object.defineProperty(exports, 'coerceInputValue', {
+  enumerable: true,
+  get: function () {
+    return coerceInputValue_js_1.coerceInputValue;
+  },
+});
+// Concatenates multiple AST together.
+var concatAST_js_1 = require('./concatAST.js');
+Object.defineProperty(exports, 'concatAST', {
+  enumerable: true,
+  get: function () {
+    return concatAST_js_1.concatAST;
+  },
+});
+// Separates an AST into an AST per Operation.
+var separateOperations_js_1 = require('./separateOperations.js');
+Object.defineProperty(exports, 'separateOperations', {
+  enumerable: true,
+  get: function () {
+    return separateOperations_js_1.separateOperations;
+  },
+});
+// Strips characters that are not significant to the validity or execution of a GraphQL document.
+var stripIgnoredCharacters_js_1 = require('./stripIgnoredCharacters.js');
+Object.defineProperty(exports, 'stripIgnoredCharacters', {
+  enumerable: true,
+  get: function () {
+    return stripIgnoredCharacters_js_1.stripIgnoredCharacters;
+  },
+});
+// Comparators for types
+var typeComparators_js_1 = require('./typeComparators.js');
+Object.defineProperty(exports, 'isEqualType', {
+  enumerable: true,
+  get: function () {
+    return typeComparators_js_1.isEqualType;
+  },
+});
+Object.defineProperty(exports, 'isTypeSubTypeOf', {
+  enumerable: true,
+  get: function () {
+    return typeComparators_js_1.isTypeSubTypeOf;
+  },
+});
+Object.defineProperty(exports, 'doTypesOverlap', {
+  enumerable: true,
+  get: function () {
+    return typeComparators_js_1.doTypesOverlap;
+  },
+});
+// Compares two GraphQLSchemas and detects breaking changes.
+var findBreakingChanges_js_1 = require('./findBreakingChanges.js');
+Object.defineProperty(exports, 'BreakingChangeType', {
+  enumerable: true,
+  get: function () {
+    return findBreakingChanges_js_1.BreakingChangeType;
+  },
+});
+Object.defineProperty(exports, 'DangerousChangeType', {
+  enumerable: true,
+  get: function () {
+    return findBreakingChanges_js_1.DangerousChangeType;
+  },
+});
+Object.defineProperty(exports, 'findBreakingChanges', {
+  enumerable: true,
+  get: function () {
+    return findBreakingChanges_js_1.findBreakingChanges;
+  },
+});
+Object.defineProperty(exports, 'findDangerousChanges', {
+  enumerable: true,
+  get: function () {
+    return findBreakingChanges_js_1.findDangerousChanges;
+  },
+});

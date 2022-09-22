@@ -1,10 +1,6 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.printPathArray = printPathArray;
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.printPathArray = void 0;
 /**
  * Build a string describing the path.
  */
@@ -15,3 +11,4 @@ function printPathArray(path) {
     )
     .join('');
 }
+exports.printPathArray = printPathArray;

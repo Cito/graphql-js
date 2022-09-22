@@ -1,16 +1,9 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.ExecutableDefinitionsRule = ExecutableDefinitionsRule;
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
-var _kinds = require('../../language/kinds.js');
-
-var _predicates = require('../../language/predicates.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.ExecutableDefinitionsRule = void 0;
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+const kinds_js_1 = require('../../language/kinds.js');
+const predicates_js_1 = require('../../language/predicates.js');
 /**
  * Executable definitions
  *
@@ -23,14 +16,14 @@ function ExecutableDefinitionsRule(context) {
   return {
     Document(node) {
       for (const definition of node.definitions) {
-        if (!(0, _predicates.isExecutableDefinitionNode)(definition)) {
+        if (!(0, predicates_js_1.isExecutableDefinitionNode)(definition)) {
           const defName =
-            definition.kind === _kinds.Kind.SCHEMA_DEFINITION ||
-            definition.kind === _kinds.Kind.SCHEMA_EXTENSION
+            definition.kind === kinds_js_1.Kind.SCHEMA_DEFINITION ||
+            definition.kind === kinds_js_1.Kind.SCHEMA_EXTENSION
               ? 'schema'
               : '"' + definition.name.value + '"';
           context.reportError(
-            new _GraphQLError.GraphQLError(
+            new GraphQLError_js_1.GraphQLError(
               `The ${defName} definition is not executable.`,
               {
                 nodes: definition,
@@ -39,8 +32,8 @@ function ExecutableDefinitionsRule(context) {
           );
         }
       }
-
       return false;
     },
   };
 }
+exports.ExecutableDefinitionsRule = ExecutableDefinitionsRule;

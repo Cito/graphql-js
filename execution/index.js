@@ -1,73 +1,90 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.getDirectiveValues =
+  exports.getVariableValues =
+  exports.getArgumentValues =
+  exports.experimentalSubscribeIncrementally =
+  exports.subscribe =
+  exports.defaultTypeResolver =
+  exports.defaultFieldResolver =
+  exports.executeSync =
+  exports.experimentalExecuteIncrementally =
+  exports.execute =
+  exports.createSourceEventStream =
+  exports.responsePathAsArray =
+    void 0;
+var Path_js_1 = require('../jsutils/Path.js');
+Object.defineProperty(exports, 'responsePathAsArray', {
+  enumerable: true,
+  get: function () {
+    return Path_js_1.pathToArray;
+  },
 });
+var execute_js_1 = require('./execute.js');
 Object.defineProperty(exports, 'createSourceEventStream', {
   enumerable: true,
   get: function () {
-    return _subscribe.createSourceEventStream;
-  },
-});
-Object.defineProperty(exports, 'defaultFieldResolver', {
-  enumerable: true,
-  get: function () {
-    return _execute.defaultFieldResolver;
-  },
-});
-Object.defineProperty(exports, 'defaultTypeResolver', {
-  enumerable: true,
-  get: function () {
-    return _execute.defaultTypeResolver;
+    return execute_js_1.createSourceEventStream;
   },
 });
 Object.defineProperty(exports, 'execute', {
   enumerable: true,
   get: function () {
-    return _execute.execute;
+    return execute_js_1.execute;
+  },
+});
+Object.defineProperty(exports, 'experimentalExecuteIncrementally', {
+  enumerable: true,
+  get: function () {
+    return execute_js_1.experimentalExecuteIncrementally;
   },
 });
 Object.defineProperty(exports, 'executeSync', {
   enumerable: true,
   get: function () {
-    return _execute.executeSync;
+    return execute_js_1.executeSync;
   },
 });
-Object.defineProperty(exports, 'getArgumentValues', {
+Object.defineProperty(exports, 'defaultFieldResolver', {
   enumerable: true,
   get: function () {
-    return _values.getArgumentValues;
+    return execute_js_1.defaultFieldResolver;
   },
 });
-Object.defineProperty(exports, 'getDirectiveValues', {
+Object.defineProperty(exports, 'defaultTypeResolver', {
   enumerable: true,
   get: function () {
-    return _values.getDirectiveValues;
-  },
-});
-Object.defineProperty(exports, 'getVariableValues', {
-  enumerable: true,
-  get: function () {
-    return _values.getVariableValues;
-  },
-});
-Object.defineProperty(exports, 'responsePathAsArray', {
-  enumerable: true,
-  get: function () {
-    return _Path.pathToArray;
+    return execute_js_1.defaultTypeResolver;
   },
 });
 Object.defineProperty(exports, 'subscribe', {
   enumerable: true,
   get: function () {
-    return _subscribe.subscribe;
+    return execute_js_1.subscribe;
   },
 });
-
-var _Path = require('../jsutils/Path.js');
-
-var _execute = require('./execute.js');
-
-var _subscribe = require('./subscribe.js');
-
-var _values = require('./values.js');
+Object.defineProperty(exports, 'experimentalSubscribeIncrementally', {
+  enumerable: true,
+  get: function () {
+    return execute_js_1.experimentalSubscribeIncrementally;
+  },
+});
+var values_js_1 = require('./values.js');
+Object.defineProperty(exports, 'getArgumentValues', {
+  enumerable: true,
+  get: function () {
+    return values_js_1.getArgumentValues;
+  },
+});
+Object.defineProperty(exports, 'getVariableValues', {
+  enumerable: true,
+  get: function () {
+    return values_js_1.getVariableValues;
+  },
+});
+Object.defineProperty(exports, 'getDirectiveValues', {
+  enumerable: true,
+  get: function () {
+    return values_js_1.getDirectiveValues;
+  },
+});

@@ -1,18 +1,10 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.UniqueDirectivesPerLocationRule = UniqueDirectivesPerLocationRule;
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
-var _kinds = require('../../language/kinds.js');
-
-var _predicates = require('../../language/predicates.js');
-
-var _directives = require('../../type/directives.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.UniqueDirectivesPerLocationRule = void 0;
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+const kinds_js_1 = require('../../language/kinds.js');
+const predicates_js_1 = require('../../language/predicates.js');
+const directives_js_1 = require('../../type/directives.js');
 /**
  * Unique directive names per location
  *
@@ -26,20 +18,16 @@ function UniqueDirectivesPerLocationRule(context) {
   const schema = context.getSchema();
   const definedDirectives = schema
     ? schema.getDirectives()
-    : _directives.specifiedDirectives;
-
+    : directives_js_1.specifiedDirectives;
   for (const directive of definedDirectives) {
     uniqueDirectiveMap[directive.name] = !directive.isRepeatable;
   }
-
   const astDefinitions = context.getDocument().definitions;
-
   for (const def of astDefinitions) {
-    if (def.kind === _kinds.Kind.DIRECTIVE_DEFINITION) {
+    if (def.kind === kinds_js_1.Kind.DIRECTIVE_DEFINITION) {
       uniqueDirectiveMap[def.name.value] = !def.repeatable;
     }
   }
-
   const schemaDirectives = Object.create(null);
   const typeDirectivesMap = Object.create(null);
   return {
@@ -50,39 +38,32 @@ function UniqueDirectivesPerLocationRule(context) {
       if (!('directives' in node) || !node.directives) {
         return;
       }
-
       let seenDirectives;
-
       if (
-        node.kind === _kinds.Kind.SCHEMA_DEFINITION ||
-        node.kind === _kinds.Kind.SCHEMA_EXTENSION
+        node.kind === kinds_js_1.Kind.SCHEMA_DEFINITION ||
+        node.kind === kinds_js_1.Kind.SCHEMA_EXTENSION
       ) {
         seenDirectives = schemaDirectives;
       } else if (
-        (0, _predicates.isTypeDefinitionNode)(node) ||
-        (0, _predicates.isTypeExtensionNode)(node)
+        (0, predicates_js_1.isTypeDefinitionNode)(node) ||
+        (0, predicates_js_1.isTypeExtensionNode)(node)
       ) {
         const typeName = node.name.value;
         seenDirectives = typeDirectivesMap[typeName];
-
         if (seenDirectives === undefined) {
           typeDirectivesMap[typeName] = seenDirectives = Object.create(null);
         }
       } else {
         seenDirectives = Object.create(null);
       }
-
       for (const directive of node.directives) {
         const directiveName = directive.name.value;
-
         if (uniqueDirectiveMap[directiveName]) {
           if (seenDirectives[directiveName]) {
             context.reportError(
-              new _GraphQLError.GraphQLError(
+              new GraphQLError_js_1.GraphQLError(
                 `The directive "@${directiveName}" can only be used once at this location.`,
-                {
-                  nodes: [seenDirectives[directiveName], directive],
-                },
+                { nodes: [seenDirectives[directiveName], directive] },
               ),
             );
           } else {
@@ -93,3 +74,4 @@ function UniqueDirectivesPerLocationRule(context) {
     },
   };
 }
+exports.UniqueDirectivesPerLocationRule = UniqueDirectivesPerLocationRule;

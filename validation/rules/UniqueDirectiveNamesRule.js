@@ -1,12 +1,7 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.UniqueDirectiveNamesRule = UniqueDirectiveNamesRule;
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.UniqueDirectiveNamesRule = void 0;
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
 /**
  * Unique directive names
  *
@@ -18,37 +13,27 @@ function UniqueDirectiveNamesRule(context) {
   return {
     DirectiveDefinition(node) {
       const directiveName = node.name.value;
-
-      if (
-        schema !== null &&
-        schema !== void 0 &&
-        schema.getDirective(directiveName)
-      ) {
+      if (schema?.getDirective(directiveName)) {
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `Directive "@${directiveName}" already exists in the schema. It cannot be redefined.`,
-            {
-              nodes: node.name,
-            },
+            { nodes: node.name },
           ),
         );
         return;
       }
-
       if (knownDirectiveNames[directiveName]) {
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `There can be only one directive named "@${directiveName}".`,
-            {
-              nodes: [knownDirectiveNames[directiveName], node.name],
-            },
+            { nodes: [knownDirectiveNames[directiveName], node.name] },
           ),
         );
       } else {
         knownDirectiveNames[directiveName] = node.name;
       }
-
       return false;
     },
   };
 }
+exports.UniqueDirectiveNamesRule = UniqueDirectiveNamesRule;

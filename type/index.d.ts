@@ -1,6 +1,6 @@
-export type { Path as ResponsePath } from '../jsutils/Path';
-export { isSchema, assertSchema, GraphQLSchema } from './schema';
-export type { GraphQLSchemaConfig, GraphQLSchemaExtensions } from './schema';
+export type { Path as ResponsePath } from '../jsutils/Path.js';
+export { isSchema, assertSchema, GraphQLSchema } from './schema.js';
+export type { GraphQLSchemaConfig, GraphQLSchemaExtensions } from './schema.js';
 export {
   resolveObjMapThunk,
   resolveReadonlyArrayThunk,
@@ -50,7 +50,7 @@ export {
   GraphQLInputObjectType,
   GraphQLList,
   GraphQLNonNull,
-} from './definition';
+} from './definition.js';
 export type {
   GraphQLType,
   GraphQLInputType,
@@ -60,6 +60,8 @@ export type {
   GraphQLAbstractType,
   GraphQLWrappingType,
   GraphQLNullableType,
+  GraphQLNullableInputType,
+  GraphQLNullableOutputType,
   GraphQLNamedType,
   GraphQLNamedInputType,
   GraphQLNamedOutputType,
@@ -102,7 +104,7 @@ export type {
   GraphQLScalarSerializer,
   GraphQLScalarValueParser,
   GraphQLScalarLiteralParser,
-} from './definition';
+} from './definition.js';
 export {
   isDirective,
   assertDirective,
@@ -111,14 +113,16 @@ export {
   specifiedDirectives,
   GraphQLIncludeDirective,
   GraphQLSkipDirective,
+  GraphQLDeferDirective,
+  GraphQLStreamDirective,
   GraphQLDeprecatedDirective,
   GraphQLSpecifiedByDirective,
   DEFAULT_DEPRECATION_REASON,
-} from './directives';
+} from './directives.js';
 export type {
   GraphQLDirectiveConfig,
   GraphQLDirectiveExtensions,
-} from './directives';
+} from './directives.js';
 export {
   isSpecifiedScalarType,
   specifiedScalarTypes,
@@ -129,7 +133,7 @@ export {
   GraphQLID,
   GRAPHQL_MAX_INT,
   GRAPHQL_MIN_INT,
-} from './scalars';
+} from './scalars.js';
 export {
   isIntrospectionType,
   introspectionTypes,
@@ -145,6 +149,6 @@ export {
   SchemaMetaFieldDef,
   TypeMetaFieldDef,
   TypeNameMetaFieldDef,
-} from './introspection';
-export { validateSchema, assertValidSchema } from './validate';
-export { assertName, assertEnumValueName } from './assertName';
+} from './introspection.js';
+export { validateSchema, assertValidSchema } from './validate.js';
+export { assertName, assertEnumValueName } from './assertName.js';

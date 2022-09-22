@@ -1,16 +1,9 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.NoDeprecatedCustomRule = NoDeprecatedCustomRule;
-
-var _invariant = require('../../../jsutils/invariant.js');
-
-var _GraphQLError = require('../../../error/GraphQLError.js');
-
-var _definition = require('../../../type/definition.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.NoDeprecatedCustomRule = void 0;
+const invariant_js_1 = require('../../../jsutils/invariant.js');
+const GraphQLError_js_1 = require('../../../error/GraphQLError.js');
+const definition_js_1 = require('../../../type/definition.js');
 /**
  * No deprecated
  *
@@ -25,107 +18,76 @@ function NoDeprecatedCustomRule(context) {
   return {
     Field(node) {
       const fieldDef = context.getFieldDef();
-      const deprecationReason =
-        fieldDef === null || fieldDef === void 0
-          ? void 0
-          : fieldDef.deprecationReason;
-
+      const deprecationReason = fieldDef?.deprecationReason;
       if (fieldDef && deprecationReason != null) {
         const parentType = context.getParentType();
-        parentType != null || (0, _invariant.invariant)(false);
+        parentType != null || invariant(false);
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `The field ${parentType.name}.${fieldDef.name} is deprecated. ${deprecationReason}`,
-            {
-              nodes: node,
-            },
+            { nodes: node },
           ),
         );
       }
     },
-
     Argument(node) {
       const argDef = context.getArgument();
-      const deprecationReason =
-        argDef === null || argDef === void 0
-          ? void 0
-          : argDef.deprecationReason;
-
+      const deprecationReason = argDef?.deprecationReason;
       if (argDef && deprecationReason != null) {
         const directiveDef = context.getDirective();
-
         if (directiveDef != null) {
           context.reportError(
-            new _GraphQLError.GraphQLError(
+            new GraphQLError_js_1.GraphQLError(
               `Directive "@${directiveDef.name}" argument "${argDef.name}" is deprecated. ${deprecationReason}`,
-              {
-                nodes: node,
-              },
+              { nodes: node },
             ),
           );
         } else {
           const parentType = context.getParentType();
           const fieldDef = context.getFieldDef();
-          (parentType != null && fieldDef != null) ||
-            (0, _invariant.invariant)(false);
+          (parentType != null && fieldDef != null) || invariant(false);
           context.reportError(
-            new _GraphQLError.GraphQLError(
+            new GraphQLError_js_1.GraphQLError(
               `Field "${parentType.name}.${fieldDef.name}" argument "${argDef.name}" is deprecated. ${deprecationReason}`,
-              {
-                nodes: node,
-              },
+              { nodes: node },
             ),
           );
         }
       }
     },
-
     ObjectField(node) {
-      const inputObjectDef = (0, _definition.getNamedType)(
+      const inputObjectDef = (0, definition_js_1.getNamedType)(
         context.getParentInputType(),
       );
-
-      if ((0, _definition.isInputObjectType)(inputObjectDef)) {
+      if ((0, definition_js_1.isInputObjectType)(inputObjectDef)) {
         const inputFieldDef = inputObjectDef.getFields()[node.name.value];
-        const deprecationReason =
-          inputFieldDef === null || inputFieldDef === void 0
-            ? void 0
-            : inputFieldDef.deprecationReason;
-
+        const deprecationReason = inputFieldDef?.deprecationReason;
         if (deprecationReason != null) {
           context.reportError(
-            new _GraphQLError.GraphQLError(
+            new GraphQLError_js_1.GraphQLError(
               `The input field ${inputObjectDef.name}.${inputFieldDef.name} is deprecated. ${deprecationReason}`,
-              {
-                nodes: node,
-              },
+              { nodes: node },
             ),
           );
         }
       }
     },
-
     EnumValue(node) {
       const enumValueDef = context.getEnumValue();
-      const deprecationReason =
-        enumValueDef === null || enumValueDef === void 0
-          ? void 0
-          : enumValueDef.deprecationReason;
-
+      const deprecationReason = enumValueDef?.deprecationReason;
       if (enumValueDef && deprecationReason != null) {
-        const enumTypeDef = (0, _definition.getNamedType)(
+        const enumTypeDef = (0, definition_js_1.getNamedType)(
           context.getInputType(),
         );
-        enumTypeDef != null || (0, _invariant.invariant)(false);
+        enumTypeDef != null || invariant(false);
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `The enum value "${enumTypeDef.name}.${enumValueDef.name}" is deprecated. ${deprecationReason}`,
-            {
-              nodes: node,
-            },
+            { nodes: node },
           ),
         );
       }
     },
   };
 }
+exports.NoDeprecatedCustomRule = NoDeprecatedCustomRule;

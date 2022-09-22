@@ -1,6 +1,5 @@
 import { invariant } from '../../jsutils/invariant.mjs';
 import { GraphQLError } from '../../error/GraphQLError.mjs';
-
 /**
  * Unique input field names
  *
@@ -18,24 +17,19 @@ export function UniqueInputFieldNamesRule(context) {
         knownNameStack.push(knownNames);
         knownNames = Object.create(null);
       },
-
       leave() {
         const prevKnownNames = knownNameStack.pop();
-        prevKnownNames || invariant(false);
+        prevKnownNames != null || invariant(false);
         knownNames = prevKnownNames;
       },
     },
-
     ObjectField(node) {
       const fieldName = node.name.value;
-
       if (knownNames[fieldName]) {
         context.reportError(
           new GraphQLError(
             `There can be only one input field named "${fieldName}".`,
-            {
-              nodes: [knownNames[fieldName], node.name],
-            },
+            { nodes: [knownNames[fieldName], node.name] },
           ),
         );
       } else {

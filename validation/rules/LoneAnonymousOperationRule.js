@@ -1,14 +1,8 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.LoneAnonymousOperationRule = LoneAnonymousOperationRule;
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
-var _kinds = require('../../language/kinds.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.LoneAnonymousOperationRule = void 0;
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+const kinds_js_1 = require('../../language/kinds.js');
 /**
  * Lone anonymous operation
  *
@@ -22,21 +16,20 @@ function LoneAnonymousOperationRule(context) {
   return {
     Document(node) {
       operationCount = node.definitions.filter(
-        (definition) => definition.kind === _kinds.Kind.OPERATION_DEFINITION,
+        (definition) =>
+          definition.kind === kinds_js_1.Kind.OPERATION_DEFINITION,
       ).length;
     },
-
     OperationDefinition(node) {
       if (!node.name && operationCount > 1) {
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             'This anonymous operation must be the only defined operation.',
-            {
-              nodes: node,
-            },
+            { nodes: node },
           ),
         );
       }
     },
   };
 }
+exports.LoneAnonymousOperationRule = LoneAnonymousOperationRule;

@@ -1,18 +1,10 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.FragmentsOnCompositeTypesRule = FragmentsOnCompositeTypesRule;
-
-var _GraphQLError = require('../../error/GraphQLError.js');
-
-var _printer = require('../../language/printer.js');
-
-var _definition = require('../../type/definition.js');
-
-var _typeFromAST = require('../../utilities/typeFromAST.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.FragmentsOnCompositeTypesRule = void 0;
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+const printer_js_1 = require('../../language/printer.js');
+const definition_js_1 = require('../../type/definition.js');
+const typeFromAST_js_1 = require('../../utilities/typeFromAST.js');
 /**
  * Fragments on composite type
  *
@@ -26,44 +18,37 @@ function FragmentsOnCompositeTypesRule(context) {
   return {
     InlineFragment(node) {
       const typeCondition = node.typeCondition;
-
       if (typeCondition) {
-        const type = (0, _typeFromAST.typeFromAST)(
+        const type = (0, typeFromAST_js_1.typeFromAST)(
           context.getSchema(),
           typeCondition,
         );
-
-        if (type && !(0, _definition.isCompositeType)(type)) {
-          const typeStr = (0, _printer.print)(typeCondition);
+        if (type && !(0, definition_js_1.isCompositeType)(type)) {
+          const typeStr = (0, printer_js_1.print)(typeCondition);
           context.reportError(
-            new _GraphQLError.GraphQLError(
+            new GraphQLError_js_1.GraphQLError(
               `Fragment cannot condition on non composite type "${typeStr}".`,
-              {
-                nodes: typeCondition,
-              },
+              { nodes: typeCondition },
             ),
           );
         }
       }
     },
-
     FragmentDefinition(node) {
-      const type = (0, _typeFromAST.typeFromAST)(
+      const type = (0, typeFromAST_js_1.typeFromAST)(
         context.getSchema(),
         node.typeCondition,
       );
-
-      if (type && !(0, _definition.isCompositeType)(type)) {
-        const typeStr = (0, _printer.print)(node.typeCondition);
+      if (type && !(0, definition_js_1.isCompositeType)(type)) {
+        const typeStr = (0, printer_js_1.print)(node.typeCondition);
         context.reportError(
-          new _GraphQLError.GraphQLError(
+          new GraphQLError_js_1.GraphQLError(
             `Fragment "${node.name.value}" cannot condition on non composite type "${typeStr}".`,
-            {
-              nodes: node.typeCondition,
-            },
+            { nodes: node.typeCondition },
           ),
         );
       }
     },
   };
 }
+exports.FragmentsOnCompositeTypesRule = FragmentsOnCompositeTypesRule;

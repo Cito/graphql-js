@@ -1,7 +1,7 @@
-import type { Maybe } from '../jsutils/Maybe';
-import type { ASTNode } from '../language/ast';
-import type { SourceLocation } from '../language/location';
-import type { Source } from '../language/source';
+import type { Maybe } from '../jsutils/Maybe.js';
+import type { ASTNode } from '../language/ast.js';
+import type { SourceLocation } from '../language/location.js';
+import type { Source } from '../language/source.js';
 /**
  * Custom extensions
  *
@@ -14,8 +14,8 @@ import type { Source } from '../language/source';
 export interface GraphQLErrorExtensions {
   [attributeName: string]: unknown;
 }
-export interface GraphQLErrorArgs {
-  nodes?: ReadonlyArray<ASTNode> | ASTNode | null;
+export interface GraphQLErrorOptions {
+  nodes?: ReadonlyArray<ASTNode> | ASTNode | null | undefined;
   source?: Maybe<Source>;
   positions?: Maybe<ReadonlyArray<number>>;
   path?: Maybe<ReadonlyArray<string | number>>;
@@ -75,23 +75,7 @@ export declare class GraphQLError extends Error {
    * Extension fields to add to the formatted error.
    */
   readonly extensions: GraphQLErrorExtensions;
-  constructor(message: string, args?: GraphQLErrorArgs);
-  /**
-   * @deprecated Please use the `GraphQLErrorArgs` constructor overload instead.
-   */
-  constructor(
-    message: string,
-    nodes?: ReadonlyArray<ASTNode> | ASTNode | null,
-    source?: Maybe<Source>,
-    positions?: Maybe<ReadonlyArray<number>>,
-    path?: Maybe<ReadonlyArray<string | number>>,
-    originalError?: Maybe<
-      Error & {
-        readonly extensions?: unknown;
-      }
-    >,
-    extensions?: Maybe<GraphQLErrorExtensions>,
-  );
+  constructor(message: string, options?: GraphQLErrorOptions);
   get [Symbol.toStringTag](): string;
   toString(): string;
   toJSON(): GraphQLFormattedError;
@@ -126,17 +110,3 @@ export interface GraphQLFormattedError {
     [key: string]: unknown;
   };
 }
-/**
- * Prints a GraphQLError to a string, representing useful location information
- * about the error's position in the source.
- *
- * @deprecated Please use `error.toString` instead. Will be removed in v17
- */
-export declare function printError(error: GraphQLError): string;
-/**
- * Given a GraphQLError, format it according to the rules described by the
- * Response Format, Errors section of the GraphQL Specification.
- *
- * @deprecated Please use `error.toJSON` instead. Will be removed in v17
- */
-export declare function formatError(error: GraphQLError): GraphQLFormattedError;

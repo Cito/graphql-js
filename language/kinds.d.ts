@@ -11,6 +11,10 @@ export declare enum Kind {
   SELECTION_SET = 'SelectionSet',
   FIELD = 'Field',
   ARGUMENT = 'Argument',
+  /** Nullability Modifiers */
+  LIST_NULLABILITY_OPERATOR = 'ListNullabilityOperator',
+  NON_NULL_ASSERTION = 'NonNullAssertion',
+  ERROR_BOUNDARY = 'ErrorBoundary',
   /** Fragments */
   FRAGMENT_SPREAD = 'FragmentSpread',
   INLINE_FRAGMENT = 'InlineFragment',
@@ -57,9 +61,3 @@ export declare enum Kind {
   ENUM_TYPE_EXTENSION = 'EnumTypeExtension',
   INPUT_OBJECT_TYPE_EXTENSION = 'InputObjectTypeExtension',
 }
-/**
- * The enum type representing the possible kind values of AST nodes.
- *
- * @deprecated Please use `Kind`. Will be remove in v17.
- */
-export declare type KindEnum = typeof Kind;

@@ -1,41 +1,24 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.locatedError = exports.syntaxError = exports.GraphQLError = void 0;
+var GraphQLError_js_1 = require('./GraphQLError.js');
 Object.defineProperty(exports, 'GraphQLError', {
   enumerable: true,
   get: function () {
-    return _GraphQLError.GraphQLError;
+    return GraphQLError_js_1.GraphQLError;
   },
 });
-Object.defineProperty(exports, 'formatError', {
-  enumerable: true,
-  get: function () {
-    return _GraphQLError.formatError;
-  },
-});
-Object.defineProperty(exports, 'locatedError', {
-  enumerable: true,
-  get: function () {
-    return _locatedError.locatedError;
-  },
-});
-Object.defineProperty(exports, 'printError', {
-  enumerable: true,
-  get: function () {
-    return _GraphQLError.printError;
-  },
-});
+var syntaxError_js_1 = require('./syntaxError.js');
 Object.defineProperty(exports, 'syntaxError', {
   enumerable: true,
   get: function () {
-    return _syntaxError.syntaxError;
+    return syntaxError_js_1.syntaxError;
   },
 });
-
-var _GraphQLError = require('./GraphQLError.js');
-
-var _syntaxError = require('./syntaxError.js');
-
-var _locatedError = require('./locatedError.js');
+var locatedError_js_1 = require('./locatedError.js');
+Object.defineProperty(exports, 'locatedError', {
+  enumerable: true,
+  get: function () {
+    return locatedError_js_1.locatedError;
+  },
+});

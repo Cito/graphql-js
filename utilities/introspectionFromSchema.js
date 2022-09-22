@@ -1,18 +1,10 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.introspectionFromSchema = introspectionFromSchema;
-
-var _invariant = require('../jsutils/invariant.js');
-
-var _parser = require('../language/parser.js');
-
-var _execute = require('../execution/execute.js');
-
-var _getIntrospectionQuery = require('./getIntrospectionQuery.js');
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.introspectionFromSchema = void 0;
+const invariant_js_1 = require('../jsutils/invariant.js');
+const parser_js_1 = require('../language/parser.js');
+const execute_js_1 = require('../execution/execute.js');
+const getIntrospectionQuery_js_1 = require('./getIntrospectionQuery.js');
 /**
  * Build an IntrospectionQuery from a GraphQLSchema
  *
@@ -30,13 +22,11 @@ function introspectionFromSchema(schema, options) {
     inputValueDeprecation: true,
     ...options,
   };
-  const document = (0, _parser.parse)(
-    (0, _getIntrospectionQuery.getIntrospectionQuery)(optionsWithDefaults),
+  const document = (0, parser_js_1.parse)(
+    (0, getIntrospectionQuery_js_1.getIntrospectionQuery)(optionsWithDefaults),
   );
-  const result = (0, _execute.executeSync)({
-    schema,
-    document,
-  });
-  (!result.errors && result.data) || (0, _invariant.invariant)(false);
+  const result = (0, execute_js_1.executeSync)({ schema, document });
+  (result.errors == null && result.data != null) || invariant(false);
   return result.data;
 }
+exports.introspectionFromSchema = introspectionFromSchema;

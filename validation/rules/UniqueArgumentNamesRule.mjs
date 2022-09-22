@@ -1,6 +1,5 @@
 import { groupBy } from '../../jsutils/groupBy.mjs';
 import { GraphQLError } from '../../error/GraphQLError.mjs';
-
 /**
  * Unique argument names
  *
@@ -14,28 +13,17 @@ export function UniqueArgumentNamesRule(context) {
     Field: checkArgUniqueness,
     Directive: checkArgUniqueness,
   };
-
   function checkArgUniqueness(parentNode) {
-    var _parentNode$arguments;
-
     // FIXME: https://github.com/graphql/graphql-js/issues/2203
-
     /* c8 ignore next */
-    const argumentNodes =
-      (_parentNode$arguments = parentNode.arguments) !== null &&
-      _parentNode$arguments !== void 0
-        ? _parentNode$arguments
-        : [];
+    const argumentNodes = parentNode.arguments ?? [];
     const seenArgs = groupBy(argumentNodes, (arg) => arg.name.value);
-
     for (const [argName, argNodes] of seenArgs) {
       if (argNodes.length > 1) {
         context.reportError(
           new GraphQLError(
             `There can be only one argument named "${argName}".`,
-            {
-              nodes: argNodes.map((node) => node.name),
-            },
+            { nodes: argNodes.map((node) => node.name) },
           ),
         );
       }

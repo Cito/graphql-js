@@ -1,10 +1,6 @@
 'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true,
-});
-exports.keyMap = keyMap;
-
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.keyMap = void 0;
 /**
  * Creates a keyed JS object from an array, given a function to produce the keys
  * for each value in the array.
@@ -34,10 +30,9 @@ exports.keyMap = keyMap;
  */
 function keyMap(list, keyFn) {
   const result = Object.create(null);
-
   for (const item of list) {
     result[keyFn(item)] = item;
   }
-
   return result;
 }
+exports.keyMap = keyMap;
