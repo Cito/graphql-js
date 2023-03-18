@@ -74,7 +74,7 @@ function visit(root, visitor, visitorKeys = ast_js_1.QueryDocumentKeys) {
     let result;
     if (!Array.isArray(node)) {
       (0, ast_js_1.isNode)(node) ||
-        devAssert(
+        (0, devAssert_js_1.devAssert)(
           false,
           `Invalid AST Node: ${(0, inspect_js_1.inspect)(node)}.`,
         );
@@ -141,7 +141,7 @@ function visitInParallel(visitors) {
     const leaveList = new Array(visitors.length).fill(undefined);
     for (let i = 0; i < visitors.length; ++i) {
       const { enter, leave } = getEnterLeaveForKind(visitors[i], kind);
-      hasVisitor || (hasVisitor = enter != null || leave != null);
+      hasVisitor ||= enter != null || leave != null;
       enterList[i] = enter;
       leaveList[i] = leave;
     }

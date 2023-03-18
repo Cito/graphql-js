@@ -25,11 +25,11 @@ const valueFromAST_js_1 = require('./valueFromAST.js');
  * the "errors" field of a server response before calling this function.
  */
 function buildClientSchema(introspection, options) {
-  // Even even though `introspection` argument is typed in most cases it's received
-  // as untyped value from server, so we will do an additional check here.
+  // Even though the `introspection` argument is typed, in most cases it's received
+  // as an untyped value from the server, so we will do an additional check here.
   ((0, isObjectLike_js_1.isObjectLike)(introspection) &&
     (0, isObjectLike_js_1.isObjectLike)(introspection.__schema)) ||
-    devAssert(
+    (0, devAssert_js_1.devAssert)(
       false,
       `Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ${(0,
       inspect_js_1.inspect)(introspection)}.`,

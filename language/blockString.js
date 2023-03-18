@@ -23,7 +23,7 @@ function dedentBlockStringLines(lines) {
     if (indent === line.length) {
       continue; // skip empty lines
     }
-    firstNonEmptyLine ?? (firstNonEmptyLine = i);
+    firstNonEmptyLine ??= i;
     lastNonEmptyLine = i;
     if (i !== 0 && indent < commonIndent) {
       commonIndent = indent;
@@ -87,10 +87,10 @@ function isPrintableAsBlockString(value) {
         break;
       case 9: //   \t
       case 32: //  <space>
-        hasIndent || (hasIndent = isEmptyLine);
+        hasIndent ||= isEmptyLine;
         break;
       default:
-        hasCommonIndent && (hasCommonIndent = hasIndent);
+        hasCommonIndent &&= hasIndent;
         isEmptyLine = false;
     }
   }
@@ -111,7 +111,7 @@ exports.isPrintableAsBlockString = isPrintableAsBlockString;
  * @internal
  */
 function printBlockString(value, options) {
-  const escapedValue = value.replace(/"""/g, '\\"""');
+  const escapedValue = value.replaceAll('"""', '\\"""');
   // Expand a block string's raw value into independent lines.
   const lines = escapedValue.split(/\r\n|[\n\r]/g);
   const isSingleLine = lines.length === 1;
