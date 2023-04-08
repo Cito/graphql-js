@@ -561,8 +561,10 @@ class GraphQLObjectType {
     this.extensions = (0, toObjMap_js_1.toObjMap)(config.extensions);
     this.astNode = config.astNode;
     this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._fields = () => defineFieldMap(config);
-    this._interfaces = () => defineInterfaces(config);
+    // prettier-ignore
+    // FIXME: blocked by https://github.com/prettier/prettier/issues/14625
+    this._fields = (defineFieldMap).bind(undefined, config.fields);
+    this._interfaces = defineInterfaces.bind(undefined, config.interfaces);
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLObjectType';
@@ -599,11 +601,11 @@ class GraphQLObjectType {
   }
 }
 exports.GraphQLObjectType = GraphQLObjectType;
-function defineInterfaces(config) {
-  return resolveReadonlyArrayThunk(config.interfaces ?? []);
+function defineInterfaces(interfaces) {
+  return resolveReadonlyArrayThunk(interfaces ?? []);
 }
-function defineFieldMap(config) {
-  const fieldMap = resolveObjMapThunk(config.fields);
+function defineFieldMap(fields) {
+  const fieldMap = resolveObjMapThunk(fields);
   return (0, mapValue_js_1.mapValue)(fieldMap, (fieldConfig, fieldName) => {
     const argsConfig = fieldConfig.args ?? {};
     return {
@@ -619,8 +621,8 @@ function defineFieldMap(config) {
     };
   });
 }
-function defineArguments(config) {
-  return Object.entries(config).map(([argName, argConfig]) => ({
+function defineArguments(args) {
+  return Object.entries(args).map(([argName, argConfig]) => ({
     name: (0, assertName_js_1.assertName)(argName),
     description: argConfig.description,
     type: argConfig.type,
@@ -692,8 +694,10 @@ class GraphQLInterfaceType {
     this.extensions = (0, toObjMap_js_1.toObjMap)(config.extensions);
     this.astNode = config.astNode;
     this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._fields = defineFieldMap.bind(undefined, config);
-    this._interfaces = defineInterfaces.bind(undefined, config);
+    // prettier-ignore
+    // FIXME: blocked by https://github.com/prettier/prettier/issues/14625
+    this._fields = (defineFieldMap).bind(undefined, config.fields);
+    this._interfaces = defineInterfaces.bind(undefined, config.interfaces);
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLInterfaceType';
@@ -762,7 +766,7 @@ class GraphQLUnionType {
     this.extensions = (0, toObjMap_js_1.toObjMap)(config.extensions);
     this.astNode = config.astNode;
     this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._types = defineTypes.bind(undefined, config);
+    this._types = defineTypes.bind(undefined, config.types);
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLUnionType';
@@ -792,8 +796,8 @@ class GraphQLUnionType {
   }
 }
 exports.GraphQLUnionType = GraphQLUnionType;
-function defineTypes(config) {
-  return resolveReadonlyArrayThunk(config.types);
+function defineTypes(types) {
+  return resolveReadonlyArrayThunk(types);
 }
 /**
  * Enum Type Definition
@@ -965,7 +969,7 @@ class GraphQLInputObjectType {
     this.extensions = (0, toObjMap_js_1.toObjMap)(config.extensions);
     this.astNode = config.astNode;
     this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._fields = defineInputFieldMap.bind(undefined, config);
+    this._fields = defineInputFieldMap.bind(undefined, config.fields);
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLInputObjectType';
@@ -1002,24 +1006,17 @@ class GraphQLInputObjectType {
   }
 }
 exports.GraphQLInputObjectType = GraphQLInputObjectType;
-function defineInputFieldMap(config) {
-  const fieldMap = resolveObjMapThunk(config.fields);
-  return (0, mapValue_js_1.mapValue)(fieldMap, (fieldConfig, fieldName) => {
-    !('resolve' in fieldConfig) ||
-      (0, devAssert_js_1.devAssert)(
-        false,
-        `${config.name}.${fieldName} field has a resolve property, but Input Types cannot define resolvers.`,
-      );
-    return {
-      name: (0, assertName_js_1.assertName)(fieldName),
-      description: fieldConfig.description,
-      type: fieldConfig.type,
-      defaultValue: fieldConfig.defaultValue,
-      deprecationReason: fieldConfig.deprecationReason,
-      extensions: (0, toObjMap_js_1.toObjMap)(fieldConfig.extensions),
-      astNode: fieldConfig.astNode,
-    };
-  });
+function defineInputFieldMap(fields) {
+  const fieldMap = resolveObjMapThunk(fields);
+  return (0, mapValue_js_1.mapValue)(fieldMap, (fieldConfig, fieldName) => ({
+    name: (0, assertName_js_1.assertName)(fieldName),
+    description: fieldConfig.description,
+    type: fieldConfig.type,
+    defaultValue: fieldConfig.defaultValue,
+    deprecationReason: fieldConfig.deprecationReason,
+    extensions: (0, toObjMap_js_1.toObjMap)(fieldConfig.extensions),
+    astNode: fieldConfig.astNode,
+  }));
 }
 function isRequiredInputField(field) {
   return isNonNullType(field.type) && field.defaultValue === undefined;

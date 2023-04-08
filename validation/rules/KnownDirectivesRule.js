@@ -17,25 +17,28 @@ const directives_js_1 = require('../../type/directives.js');
  * See https://spec.graphql.org/draft/#sec-Directives-Are-Defined
  */
 function KnownDirectivesRule(context) {
-  const locationsMap = Object.create(null);
+  const locationsMap = new Map();
   const schema = context.getSchema();
   const definedDirectives = schema
     ? schema.getDirectives()
     : directives_js_1.specifiedDirectives;
   for (const directive of definedDirectives) {
-    locationsMap[directive.name] = directive.locations;
+    locationsMap.set(directive.name, directive.locations);
   }
   const astDefinitions = context.getDocument().definitions;
   for (const def of astDefinitions) {
     if (def.kind === kinds_js_1.Kind.DIRECTIVE_DEFINITION) {
-      locationsMap[def.name.value] = def.locations.map((name) => name.value);
+      locationsMap.set(
+        def.name.value,
+        def.locations.map((name) => name.value),
+      );
     }
   }
   return {
     Directive(node, _key, _parent, _path, ancestors) {
       const name = node.name.value;
-      const locations = locationsMap[name];
-      if (!locations) {
+      const locations = locationsMap.get(name);
+      if (locations == null) {
         context.reportError(
           new GraphQLError_js_1.GraphQLError(`Unknown directive "@${name}".`, {
             nodes: node,
@@ -44,7 +47,7 @@ function KnownDirectivesRule(context) {
         return;
       }
       const candidateLocation = getDirectiveLocationForASTPath(ancestors);
-      if (candidateLocation && !locations.includes(candidateLocation)) {
+      if (candidateLocation != null && !locations.includes(candidateLocation)) {
         context.reportError(
           new GraphQLError_js_1.GraphQLError(
             `Directive "@${name}" may not be used on ${candidateLocation}.`,
@@ -57,8 +60,9 @@ function KnownDirectivesRule(context) {
 }
 exports.KnownDirectivesRule = KnownDirectivesRule;
 function getDirectiveLocationForASTPath(ancestors) {
-  const appliedTo = ancestors[ancestors.length - 1];
-  'kind' in appliedTo || (0, invariant_js_1.invariant)(false);
+  const appliedTo = ancestors.at(-1);
+  (appliedTo != null && 'kind' in appliedTo) ||
+    (0, invariant_js_1.invariant)(false);
   switch (appliedTo.kind) {
     case kinds_js_1.Kind.OPERATION_DEFINITION:
       return getDirectiveLocationForOperation(appliedTo.operation);
@@ -98,8 +102,9 @@ function getDirectiveLocationForASTPath(ancestors) {
     case kinds_js_1.Kind.INPUT_OBJECT_TYPE_EXTENSION:
       return directiveLocation_js_1.DirectiveLocation.INPUT_OBJECT;
     case kinds_js_1.Kind.INPUT_VALUE_DEFINITION: {
-      const parentNode = ancestors[ancestors.length - 3];
-      'kind' in parentNode || (0, invariant_js_1.invariant)(false);
+      const parentNode = ancestors.at(-3);
+      (parentNode != null && 'kind' in parentNode) ||
+        (0, invariant_js_1.invariant)(false);
       return parentNode.kind === kinds_js_1.Kind.INPUT_OBJECT_TYPE_DEFINITION
         ? directiveLocation_js_1.DirectiveLocation.INPUT_FIELD_DEFINITION
         : directiveLocation_js_1.DirectiveLocation.ARGUMENT_DEFINITION;
