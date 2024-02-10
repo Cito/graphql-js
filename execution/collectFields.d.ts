@@ -6,15 +6,13 @@ import type {
 } from '../language/ast.js';
 import type { GraphQLObjectType } from '../type/definition.js';
 import type { GraphQLSchema } from '../type/schema.js';
-export type FieldGroup = ReadonlyArray<FieldNode>;
-export type GroupedFieldSet = Map<string, FieldGroup>;
-export interface PatchFields {
+export interface DeferUsage {
   label: string | undefined;
-  groupedFieldSet: GroupedFieldSet;
+  parentDeferUsage: DeferUsage | undefined;
 }
-export interface FieldsAndPatches {
-  groupedFieldSet: GroupedFieldSet;
-  patches: Array<PatchFields>;
+export interface FieldDetails {
+  node: FieldNode;
+  deferUsage: DeferUsage | undefined;
 }
 /**
  * Given a selectionSet, collects all of the fields and returns them.
@@ -33,7 +31,7 @@ export declare function collectFields(
   },
   runtimeType: GraphQLObjectType,
   operation: OperationDefinitionNode,
-): FieldsAndPatches;
+): Map<string, ReadonlyArray<FieldDetails>>;
 /**
  * Given an array of field nodes, collects all of the subfields of the passed
  * in fields, and returns them at the end.
@@ -52,5 +50,5 @@ export declare function collectSubfields(
   },
   operation: OperationDefinitionNode,
   returnType: GraphQLObjectType,
-  fieldGroup: FieldGroup,
-): FieldsAndPatches;
+  fieldDetails: ReadonlyArray<FieldDetails>,
+): Map<string, ReadonlyArray<FieldDetails>>;

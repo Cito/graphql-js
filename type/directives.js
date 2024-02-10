@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.isSpecifiedDirective =
   exports.specifiedDirectives =
+  exports.GraphQLOneOfDirective =
   exports.GraphQLSpecifiedByDirective =
   exports.GraphQLDeprecatedDirective =
   exports.DEFAULT_DEPRECATION_REASON =
@@ -201,6 +202,16 @@ exports.GraphQLSpecifiedByDirective = new GraphQLDirective({
   },
 });
 /**
+ * Used to indicate an Input Object is a OneOf Input Object.
+ */
+exports.GraphQLOneOfDirective = new GraphQLDirective({
+  name: 'oneOf',
+  description:
+    'Indicates exactly one field must be supplied and this field must not be `null`.',
+  locations: [directiveLocation_js_1.DirectiveLocation.INPUT_OBJECT],
+  args: {},
+});
+/**
  * The full list of specified directives.
  */
 exports.specifiedDirectives = Object.freeze([
@@ -208,6 +219,7 @@ exports.specifiedDirectives = Object.freeze([
   exports.GraphQLSkipDirective,
   exports.GraphQLDeprecatedDirective,
   exports.GraphQLSpecifiedByDirective,
+  exports.GraphQLOneOfDirective,
 ]);
 function isSpecifiedDirective(directive) {
   return exports.specifiedDirectives.some(

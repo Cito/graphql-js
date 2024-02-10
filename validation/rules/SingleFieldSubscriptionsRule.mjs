@@ -1,6 +1,9 @@
 import { GraphQLError } from '../../error/GraphQLError.mjs';
 import { Kind } from '../../language/kinds.mjs';
 import { collectFields } from '../../execution/collectFields.mjs';
+function toNodes(fieldDetailsList) {
+  return fieldDetailsList.map((fieldDetails) => fieldDetails.node);
+}
 /**
  * Subscriptions must only include a non-introspection field.
  *
@@ -25,17 +28,19 @@ export function SingleFieldSubscriptionsRule(context) {
               fragments[definition.name.value] = definition;
             }
           }
-          const { groupedFieldSet } = collectFields(
+          const fields = collectFields(
             schema,
             fragments,
             variableValues,
             subscriptionType,
             node,
           );
-          if (groupedFieldSet.size > 1) {
-            const fieldSelectionLists = [...groupedFieldSet.values()];
-            const extraFieldSelectionLists = fieldSelectionLists.slice(1);
-            const extraFieldSelections = extraFieldSelectionLists.flat();
+          if (fields.size > 1) {
+            const fieldGroups = [...fields.values()];
+            const extraFieldGroups = fieldGroups.slice(1);
+            const extraFieldSelections = extraFieldGroups.flatMap(
+              (fieldGroup) => toNodes(fieldGroup),
+            );
             context.reportError(
               new GraphQLError(
                 operationName != null
@@ -45,15 +50,15 @@ export function SingleFieldSubscriptionsRule(context) {
               ),
             );
           }
-          for (const fieldGroup of groupedFieldSet.values()) {
-            const fieldName = fieldGroup[0].name.value;
+          for (const fieldGroup of fields.values()) {
+            const fieldName = toNodes(fieldGroup)[0].name.value;
             if (fieldName.startsWith('__')) {
               context.reportError(
                 new GraphQLError(
                   operationName != null
                     ? `Subscription "${operationName}" must not select an introspection top level field.`
                     : 'Anonymous Subscription must not select an introspection top level field.',
-                  { nodes: fieldGroup },
+                  { nodes: toNodes(fieldGroup) },
                 ),
               );
             }

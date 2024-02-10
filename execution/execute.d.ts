@@ -2,10 +2,10 @@ import type { Maybe } from '../jsutils/Maybe.js';
 import type { ObjMap } from '../jsutils/ObjMap.js';
 import type { Path } from '../jsutils/Path.js';
 import type { PromiseOrValue } from '../jsutils/PromiseOrValue.js';
-import type { GraphQLFormattedError } from '../error/GraphQLError.js';
 import { GraphQLError } from '../error/GraphQLError.js';
 import type {
   DocumentNode,
+  FieldNode,
   FragmentDefinitionNode,
   OperationDefinitionNode,
 } from '../language/ast.js';
@@ -17,7 +17,12 @@ import type {
   GraphQLTypeResolver,
 } from '../type/definition.js';
 import type { GraphQLSchema } from '../type/schema.js';
-import type { FieldGroup } from './collectFields.js';
+import type { FieldGroup } from './buildFieldPlan.js';
+import type {
+  ExecutionResult,
+  ExperimentalIncrementalExecutionResults,
+} from './IncrementalPublisher.js';
+import { IncrementalPublisher } from './IncrementalPublisher.js';
 /**
  * Terminology
  *
@@ -55,123 +60,8 @@ export interface ExecutionContext {
   fieldResolver: GraphQLFieldResolver<any, any>;
   typeResolver: GraphQLTypeResolver<any, any>;
   subscribeFieldResolver: GraphQLFieldResolver<any, any>;
-  errors: Array<GraphQLError>;
-  subsequentPayloads: Set<IncrementalDataRecord>;
+  incrementalPublisher: IncrementalPublisher;
 }
-/**
- * The result of GraphQL execution.
- *
- *   - `errors` is included when any errors occurred as a non-empty array.
- *   - `data` is the result of a successful execution of the query.
- *   - `hasNext` is true if a future payload is expected.
- *   - `extensions` is reserved for adding non-standard properties.
- *   - `incremental` is a list of the results from defer/stream directives.
- */
-export interface ExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  errors?: ReadonlyArray<GraphQLError>;
-  data?: TData | null;
-  extensions?: TExtensions;
-}
-export interface FormattedExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-  data?: TData | null;
-  extensions?: TExtensions;
-}
-export interface ExperimentalIncrementalExecutionResults<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  initialResult: InitialIncrementalExecutionResult<TData, TExtensions>;
-  subsequentResults: AsyncGenerator<
-    SubsequentIncrementalExecutionResult<TData, TExtensions>,
-    void,
-    void
-  >;
-}
-export interface InitialIncrementalExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> extends ExecutionResult<TData, TExtensions> {
-  hasNext: boolean;
-  incremental?: ReadonlyArray<IncrementalResult<TData, TExtensions>>;
-  extensions?: TExtensions;
-}
-export interface FormattedInitialIncrementalExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> extends FormattedExecutionResult<TData, TExtensions> {
-  hasNext: boolean;
-  incremental?: ReadonlyArray<FormattedIncrementalResult<TData, TExtensions>>;
-  extensions?: TExtensions;
-}
-export interface SubsequentIncrementalExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  hasNext: boolean;
-  incremental?: ReadonlyArray<IncrementalResult<TData, TExtensions>>;
-  extensions?: TExtensions;
-}
-export interface FormattedSubsequentIncrementalExecutionResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  hasNext: boolean;
-  incremental?: ReadonlyArray<FormattedIncrementalResult<TData, TExtensions>>;
-  extensions?: TExtensions;
-}
-export interface IncrementalDeferResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> extends ExecutionResult<TData, TExtensions> {
-  path?: ReadonlyArray<string | number>;
-  label?: string;
-}
-export interface FormattedIncrementalDeferResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> extends FormattedExecutionResult<TData, TExtensions> {
-  path?: ReadonlyArray<string | number>;
-  label?: string;
-}
-export interface IncrementalStreamResult<
-  TData = Array<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  errors?: ReadonlyArray<GraphQLError>;
-  items?: TData | null;
-  path?: ReadonlyArray<string | number>;
-  label?: string;
-  extensions?: TExtensions;
-}
-export interface FormattedIncrementalStreamResult<
-  TData = Array<unknown>,
-  TExtensions = ObjMap<unknown>,
-> {
-  errors?: ReadonlyArray<GraphQLFormattedError>;
-  items?: TData | null;
-  path?: ReadonlyArray<string | number>;
-  label?: string;
-  extensions?: TExtensions;
-}
-export type IncrementalResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> =
-  | IncrementalDeferResult<TData, TExtensions>
-  | IncrementalStreamResult<TData, TExtensions>;
-export type FormattedIncrementalResult<
-  TData = ObjMap<unknown>,
-  TExtensions = ObjMap<unknown>,
-> =
-  | FormattedIncrementalDeferResult<TData, TExtensions>
-  | FormattedIncrementalStreamResult<TData, TExtensions>;
 export interface ExecutionArgs {
   schema: GraphQLSchema;
   document: DocumentNode;
@@ -184,6 +74,11 @@ export interface ExecutionArgs {
   fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>;
   typeResolver?: Maybe<GraphQLTypeResolver<any, any>>;
   subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>;
+}
+export interface StreamUsage {
+  label: string | undefined;
+  initialCount: number;
+  fieldGroup: FieldGroup;
 }
 /**
  * Implements the "Executing requests" section of the GraphQL specification.
@@ -244,7 +139,7 @@ export declare function buildExecutionContext(
 export declare function buildResolveInfo(
   exeContext: ExecutionContext,
   fieldDef: GraphQLField<unknown, unknown>,
-  fieldGroup: FieldGroup,
+  fieldNodes: ReadonlyArray<FieldNode>,
   parentType: GraphQLObjectType,
   path: Path,
 ): GraphQLResolveInfo;
@@ -331,47 +226,3 @@ export declare function subscribe(
 export declare function createSourceEventStream(
   args: ExecutionArgs,
 ): PromiseOrValue<AsyncIterable<unknown> | ExecutionResult>;
-declare class DeferredFragmentRecord {
-  type: 'defer';
-  errors: Array<GraphQLError>;
-  label: string | undefined;
-  path: Array<string | number>;
-  promise: Promise<void>;
-  data: ObjMap<unknown> | null;
-  parentContext: IncrementalDataRecord | undefined;
-  isCompleted: boolean;
-  _exeContext: ExecutionContext;
-  _resolve?: (arg: PromiseOrValue<ObjMap<unknown> | null>) => void;
-  constructor(opts: {
-    label: string | undefined;
-    path: Path | undefined;
-    parentContext: IncrementalDataRecord | undefined;
-    exeContext: ExecutionContext;
-  });
-  addData(data: PromiseOrValue<ObjMap<unknown> | null>): void;
-}
-declare class StreamItemsRecord {
-  type: 'stream';
-  errors: Array<GraphQLError>;
-  label: string | undefined;
-  path: Array<string | number>;
-  items: Array<unknown> | null;
-  promise: Promise<void>;
-  parentContext: IncrementalDataRecord | undefined;
-  asyncIterator: AsyncIterator<unknown> | undefined;
-  isCompletedAsyncIterator?: boolean;
-  isCompleted: boolean;
-  _exeContext: ExecutionContext;
-  _resolve?: (arg: PromiseOrValue<Array<unknown> | null>) => void;
-  constructor(opts: {
-    label: string | undefined;
-    path: Path | undefined;
-    asyncIterator?: AsyncIterator<unknown>;
-    parentContext: IncrementalDataRecord | undefined;
-    exeContext: ExecutionContext;
-  });
-  addItems(items: PromiseOrValue<Array<unknown> | null>): void;
-  setIsCompletedAsyncIterator(): void;
-}
-type IncrementalDataRecord = DeferredFragmentRecord | StreamItemsRecord;
-export {};
