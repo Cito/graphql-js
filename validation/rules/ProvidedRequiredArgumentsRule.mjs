@@ -2,8 +2,14 @@ import { inspect } from '../../jsutils/inspect.mjs';
 import { GraphQLError } from '../../error/GraphQLError.mjs';
 import { Kind } from '../../language/kinds.mjs';
 import { print } from '../../language/printer.mjs';
-import { isRequiredArgument, isType } from '../../type/definition.mjs';
+import {
+  getNamedType,
+  isRequiredArgument,
+  isType,
+} from '../../type/definition.mjs';
 import { specifiedDirectives } from '../../type/directives.mjs';
+import { isIntrospectionType } from '../../type/introspection.mjs';
+import { typeFromAST } from '../../utilities/typeFromAST.mjs';
 /**
  * Provided required arguments
  *
@@ -28,11 +34,56 @@ export function ProvidedRequiredArgumentsRule(context) {
         );
         for (const argDef of fieldDef.args) {
           if (!providedArgs.has(argDef.name) && isRequiredArgument(argDef)) {
+            const fieldType = getNamedType(context.getType());
+            let parentTypeStr;
+            if (fieldType && isIntrospectionType(fieldType)) {
+              parentTypeStr = '<meta>.';
+            } else {
+              const parentType = context.getParentType();
+              if (parentType) {
+                parentTypeStr = `${context.getParentType()}.`;
+              }
+            }
             const argTypeStr = inspect(argDef.type);
             context.reportError(
               new GraphQLError(
-                `Field "${fieldDef.name}" argument "${argDef.name}" of type "${argTypeStr}" is required, but it was not provided.`,
+                `Argument "${parentTypeStr}${fieldDef.name}(${argDef.name}:)" of type "${argTypeStr}" is required, but it was not provided.`,
                 { nodes: fieldNode },
+              ),
+            );
+          }
+        }
+      },
+    },
+    FragmentSpread: {
+      // Validate on leave to allow for deeper errors to appear first.
+      leave(spreadNode) {
+        const fragmentSignature = context.getFragmentSignature();
+        if (!fragmentSignature) {
+          return false;
+        }
+        const providedArgs = new Set(
+          // FIXME: https://github.com/graphql/graphql-js/issues/2203
+          /* c8 ignore next */
+          spreadNode.arguments?.map((arg) => arg.name.value),
+        );
+        for (const [
+          varName,
+          variableDefinition,
+        ] of fragmentSignature.variableDefinitions) {
+          if (
+            !providedArgs.has(varName) &&
+            isRequiredArgumentNode(variableDefinition)
+          ) {
+            const type = typeFromAST(
+              context.getSchema(),
+              variableDefinition.type,
+            );
+            const argTypeStr = inspect(type);
+            context.reportError(
+              new GraphQLError(
+                `Fragment "${spreadNode.name.value}" argument "${varName}" of type "${argTypeStr}" is required, but it was not provided.`,
+                { nodes: spreadNode },
               ),
             );
           }
@@ -90,7 +141,7 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
                 : print(argDef.type);
               context.reportError(
                 new GraphQLError(
-                  `Directive "@${directiveName}" argument "${argName}" of type "${argType}" is required, but it was not provided.`,
+                  `Argument "@${directiveName}(${argName}:)" of type "${argType}" is required, but it was not provided.`,
                   { nodes: directiveNode },
                 ),
               );

@@ -137,7 +137,11 @@ export const __DirectiveLocation = new GraphQLEnumType({
     },
     VARIABLE_DEFINITION: {
       value: DirectiveLocation.VARIABLE_DEFINITION,
-      description: 'Location adjacent to a variable definition.',
+      description: 'Location adjacent to an operation variable definition.',
+    },
+    FRAGMENT_VARIABLE_DEFINITION: {
+      value: DirectiveLocation.FRAGMENT_VARIABLE_DEFINITION,
+      description: 'Location adjacent to a fragment variable definition.',
     },
     SCHEMA: {
       value: DirectiveLocation.SCHEMA,
@@ -416,7 +420,7 @@ export const __EnumValue = new GraphQLObjectType({
     },
   }),
 });
-export var TypeKind;
+var TypeKind;
 (function (TypeKind) {
   TypeKind['SCALAR'] = 'SCALAR';
   TypeKind['OBJECT'] = 'OBJECT';
@@ -427,6 +431,7 @@ export var TypeKind;
   TypeKind['LIST'] = 'LIST';
   TypeKind['NON_NULL'] = 'NON_NULL';
 })(TypeKind || (TypeKind = {}));
+export { TypeKind };
 export const __TypeKind = new GraphQLEnumType({
   name: '__TypeKind',
   description: 'An enum describing what kind of type a given `__Type` is.',

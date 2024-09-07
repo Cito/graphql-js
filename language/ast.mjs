@@ -72,12 +72,13 @@ export const QueryDocumentKeys = {
     'nullabilityAssertion',
   ],
   Argument: ['name', 'value'],
+  FragmentArgument: ['name', 'value'],
   // Note: Client Controlled Nullability is experimental and may be changed
   // or removed in the future.
   ListNullabilityOperator: ['nullabilityAssertion'],
   NonNullAssertion: ['nullabilityAssertion'],
   ErrorBoundary: ['nullabilityAssertion'],
-  FragmentSpread: ['name', 'directives'],
+  FragmentSpread: ['name', 'arguments', 'directives'],
   InlineFragment: ['typeCondition', 'directives', 'selectionSet'],
   FragmentDefinition: [
     'name',
@@ -146,9 +147,10 @@ export function isNode(maybeNode) {
   const maybeKind = maybeNode?.kind;
   return typeof maybeKind === 'string' && kindValues.has(maybeKind);
 }
-export var OperationTypeNode;
+var OperationTypeNode;
 (function (OperationTypeNode) {
   OperationTypeNode['QUERY'] = 'query';
   OperationTypeNode['MUTATION'] = 'mutation';
   OperationTypeNode['SUBSCRIPTION'] = 'subscription';
 })(OperationTypeNode || (OperationTypeNode = {}));
+export { OperationTypeNode };

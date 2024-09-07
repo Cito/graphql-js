@@ -9,7 +9,10 @@ import {
   GraphQLSkipDirective,
 } from '../type/directives.mjs';
 import { typeFromAST } from '../utilities/typeFromAST.mjs';
-import { getDirectiveValues } from './values.mjs';
+import {
+  experimentalGetArgumentValues,
+  getDirectiveValues,
+} from './values.mjs';
 /**
  * Given a selectionSet, collects all of the fields and returns them.
  *
@@ -42,7 +45,7 @@ export function collectFields(
     groupedFieldSet,
     newDeferUsages,
   );
-  return { fields: groupedFieldSet, newDeferUsages };
+  return { groupedFieldSet, newDeferUsages };
 }
 /**
  * Given an array of field nodes, collects all of the subfields of the passed
@@ -61,7 +64,7 @@ export function collectSubfields(
   variableValues,
   operation,
   returnType,
-  fieldDetails,
+  fieldGroup,
 ) {
   const context = {
     schema,
@@ -73,29 +76,33 @@ export function collectSubfields(
   };
   const subGroupedFieldSet = new AccumulatorMap();
   const newDeferUsages = [];
-  for (const fieldDetail of fieldDetails) {
-    const node = fieldDetail.node;
-    if (node.selectionSet) {
+  for (const fieldDetail of fieldGroup) {
+    const selectionSet = fieldDetail.node.selectionSet;
+    if (selectionSet) {
+      const { deferUsage, fragmentVariables } = fieldDetail;
       collectFieldsImpl(
         context,
-        node.selectionSet,
+        selectionSet,
         subGroupedFieldSet,
         newDeferUsages,
-        fieldDetail.deferUsage,
+        deferUsage,
+        fragmentVariables,
       );
     }
   }
   return {
-    fields: subGroupedFieldSet,
+    groupedFieldSet: subGroupedFieldSet,
     newDeferUsages,
   };
 }
+// eslint-disable-next-line max-params
 function collectFieldsImpl(
   context,
   selectionSet,
   groupedFieldSet,
   newDeferUsages,
   deferUsage,
+  fragmentVariables,
 ) {
   const {
     schema,
@@ -108,18 +115,19 @@ function collectFieldsImpl(
   for (const selection of selectionSet.selections) {
     switch (selection.kind) {
       case Kind.FIELD: {
-        if (!shouldIncludeNode(variableValues, selection)) {
+        if (!shouldIncludeNode(selection, variableValues, fragmentVariables)) {
           continue;
         }
         groupedFieldSet.add(getFieldEntryKey(selection), {
           node: selection,
           deferUsage,
+          fragmentVariables,
         });
         break;
       }
       case Kind.INLINE_FRAGMENT: {
         if (
-          !shouldIncludeNode(variableValues, selection) ||
+          !shouldIncludeNode(selection, variableValues, fragmentVariables) ||
           !doesFragmentConditionMatch(schema, selection, runtimeType)
         ) {
           continue;
@@ -127,6 +135,7 @@ function collectFieldsImpl(
         const newDeferUsage = getDeferUsage(
           operation,
           variableValues,
+          fragmentVariables,
           selection,
           deferUsage,
         );
@@ -137,6 +146,7 @@ function collectFieldsImpl(
             groupedFieldSet,
             newDeferUsages,
             deferUsage,
+            fragmentVariables,
           );
         } else {
           newDeferUsages.push(newDeferUsage);
@@ -146,6 +156,7 @@ function collectFieldsImpl(
             groupedFieldSet,
             newDeferUsages,
             newDeferUsage,
+            fragmentVariables,
           );
         }
         break;
@@ -155,40 +166,56 @@ function collectFieldsImpl(
         const newDeferUsage = getDeferUsage(
           operation,
           variableValues,
+          fragmentVariables,
           selection,
           deferUsage,
         );
         if (
           !newDeferUsage &&
           (visitedFragmentNames.has(fragName) ||
-            !shouldIncludeNode(variableValues, selection))
+            !shouldIncludeNode(selection, variableValues, fragmentVariables))
         ) {
           continue;
         }
         const fragment = fragments[fragName];
         if (
           fragment == null ||
-          !doesFragmentConditionMatch(schema, fragment, runtimeType)
+          !doesFragmentConditionMatch(schema, fragment.definition, runtimeType)
         ) {
           continue;
+        }
+        const fragmentVariableSignatures = fragment.variableSignatures;
+        let newFragmentVariables;
+        if (fragmentVariableSignatures) {
+          newFragmentVariables = {
+            signatures: fragmentVariableSignatures,
+            values: experimentalGetArgumentValues(
+              selection,
+              Object.values(fragmentVariableSignatures),
+              variableValues,
+              fragmentVariables,
+            ),
+          };
         }
         if (!newDeferUsage) {
           visitedFragmentNames.add(fragName);
           collectFieldsImpl(
             context,
-            fragment.selectionSet,
+            fragment.definition.selectionSet,
             groupedFieldSet,
             newDeferUsages,
             deferUsage,
+            newFragmentVariables,
           );
         } else {
           newDeferUsages.push(newDeferUsage);
           collectFieldsImpl(
             context,
-            fragment.selectionSet,
+            fragment.definition.selectionSet,
             groupedFieldSet,
             newDeferUsages,
             newDeferUsage,
+            newFragmentVariables,
           );
         }
         break;
@@ -201,8 +228,19 @@ function collectFieldsImpl(
  * deferred based on the experimental flag, defer directive present and
  * not disabled by the "if" argument.
  */
-function getDeferUsage(operation, variableValues, node, parentDeferUsage) {
-  const defer = getDirectiveValues(GraphQLDeferDirective, node, variableValues);
+function getDeferUsage(
+  operation,
+  variableValues,
+  fragmentVariables,
+  node,
+  parentDeferUsage,
+) {
+  const defer = getDirectiveValues(
+    GraphQLDeferDirective,
+    node,
+    variableValues,
+    fragmentVariables,
+  );
   if (!defer) {
     return;
   }
@@ -223,8 +261,13 @@ function getDeferUsage(operation, variableValues, node, parentDeferUsage) {
  * Determines if a field should be included based on the `@include` and `@skip`
  * directives, where `@skip` has higher precedence than `@include`.
  */
-function shouldIncludeNode(variableValues, node) {
-  const skip = getDirectiveValues(GraphQLSkipDirective, node, variableValues);
+function shouldIncludeNode(node, variableValues, fragmentVariables) {
+  const skip = getDirectiveValues(
+    GraphQLSkipDirective,
+    node,
+    variableValues,
+    fragmentVariables,
+  );
   if (skip?.if === true) {
     return false;
   }
@@ -232,6 +275,7 @@ function shouldIncludeNode(variableValues, node) {
     GraphQLIncludeDirective,
     node,
     variableValues,
+    fragmentVariables,
   );
   if (include?.if === false) {
     return false;

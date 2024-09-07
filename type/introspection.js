@@ -150,7 +150,12 @@ exports.__DirectiveLocation = new definition_js_1.GraphQLEnumType({
     },
     VARIABLE_DEFINITION: {
       value: directiveLocation_js_1.DirectiveLocation.VARIABLE_DEFINITION,
-      description: 'Location adjacent to a variable definition.',
+      description: 'Location adjacent to an operation variable definition.',
+    },
+    FRAGMENT_VARIABLE_DEFINITION: {
+      value:
+        directiveLocation_js_1.DirectiveLocation.FRAGMENT_VARIABLE_DEFINITION,
+      description: 'Location adjacent to a fragment variable definition.',
     },
     SCHEMA: {
       value: directiveLocation_js_1.DirectiveLocation.SCHEMA,
@@ -470,7 +475,8 @@ var TypeKind;
   TypeKind['INPUT_OBJECT'] = 'INPUT_OBJECT';
   TypeKind['LIST'] = 'LIST';
   TypeKind['NON_NULL'] = 'NON_NULL';
-})((TypeKind = exports.TypeKind || (exports.TypeKind = {})));
+})(TypeKind || (TypeKind = {}));
+exports.TypeKind = TypeKind;
 exports.__TypeKind = new definition_js_1.GraphQLEnumType({
   name: '__TypeKind',
   description: 'An enum describing what kind of type a given `__Type` is.',

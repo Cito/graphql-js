@@ -15,6 +15,7 @@ var Kind;
   Kind['SELECTION_SET'] = 'SelectionSet';
   Kind['FIELD'] = 'Field';
   Kind['ARGUMENT'] = 'Argument';
+  Kind['FRAGMENT_ARGUMENT'] = 'FragmentArgument';
   /** Nullability Modifiers */
   Kind['LIST_NULLABILITY_OPERATOR'] = 'ListNullabilityOperator';
   Kind['NON_NULL_ASSERTION'] = 'NonNullAssertion';
@@ -64,4 +65,5 @@ var Kind;
   Kind['UNION_TYPE_EXTENSION'] = 'UnionTypeExtension';
   Kind['ENUM_TYPE_EXTENSION'] = 'EnumTypeExtension';
   Kind['INPUT_OBJECT_TYPE_EXTENSION'] = 'InputObjectTypeExtension';
-})((Kind = exports.Kind || (exports.Kind = {})));
+})(Kind || (Kind = {}));
+exports.Kind = Kind;

@@ -6,7 +6,6 @@ import { GraphQLError } from '../error/GraphQLError.js';
 import type {
   DocumentNode,
   FieldNode,
-  FragmentDefinitionNode,
   OperationDefinitionNode,
 } from '../language/ast.js';
 import type {
@@ -17,12 +16,12 @@ import type {
   GraphQLTypeResolver,
 } from '../type/definition.js';
 import type { GraphQLSchema } from '../type/schema.js';
-import type { FieldGroup } from './buildFieldPlan.js';
+import type { FieldGroup, FragmentDetails } from './collectFields.js';
 import type {
+  CancellableStreamRecord,
   ExecutionResult,
   ExperimentalIncrementalExecutionResults,
-} from './IncrementalPublisher.js';
-import { IncrementalPublisher } from './IncrementalPublisher.js';
+} from './types.js';
 /**
  * Terminology
  *
@@ -50,7 +49,7 @@ import { IncrementalPublisher } from './IncrementalPublisher.js';
  */
 export interface ExecutionContext {
   schema: GraphQLSchema;
-  fragments: ObjMap<FragmentDefinitionNode>;
+  fragments: ObjMap<FragmentDetails>;
   rootValue: unknown;
   contextValue: unknown;
   operation: OperationDefinitionNode;
@@ -60,7 +59,9 @@ export interface ExecutionContext {
   fieldResolver: GraphQLFieldResolver<any, any>;
   typeResolver: GraphQLTypeResolver<any, any>;
   subscribeFieldResolver: GraphQLFieldResolver<any, any>;
-  incrementalPublisher: IncrementalPublisher;
+  enableEarlyExecution: boolean;
+  errors: Array<GraphQLError> | undefined;
+  cancellableStreams: Set<CancellableStreamRecord> | undefined;
 }
 export interface ExecutionArgs {
   schema: GraphQLSchema;
@@ -74,6 +75,7 @@ export interface ExecutionArgs {
   fieldResolver?: Maybe<GraphQLFieldResolver<any, any>>;
   typeResolver?: Maybe<GraphQLTypeResolver<any, any>>;
   subscribeFieldResolver?: Maybe<GraphQLFieldResolver<any, any>>;
+  enableEarlyExecution?: Maybe<boolean>;
 }
 export interface StreamUsage {
   label: string | undefined;

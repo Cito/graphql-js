@@ -6,13 +6,25 @@ import type {
 } from '../language/ast.js';
 import type { GraphQLObjectType } from '../type/definition.js';
 import type { GraphQLSchema } from '../type/schema.js';
+import type { GraphQLVariableSignature } from './getVariableSignature.js';
 export interface DeferUsage {
   label: string | undefined;
   parentDeferUsage: DeferUsage | undefined;
 }
+export interface FragmentVariables {
+  signatures: ObjMap<GraphQLVariableSignature>;
+  values: ObjMap<unknown>;
+}
 export interface FieldDetails {
   node: FieldNode;
-  deferUsage: DeferUsage | undefined;
+  deferUsage?: DeferUsage | undefined;
+  fragmentVariables?: FragmentVariables | undefined;
+}
+export type FieldGroup = ReadonlyArray<FieldDetails>;
+export type GroupedFieldSet = ReadonlyMap<string, FieldGroup>;
+export interface FragmentDetails {
+  definition: FragmentDefinitionNode;
+  variableSignatures?: ObjMap<GraphQLVariableSignature> | undefined;
 }
 /**
  * Given a selectionSet, collects all of the fields and returns them.
@@ -25,14 +37,14 @@ export interface FieldDetails {
  */
 export declare function collectFields(
   schema: GraphQLSchema,
-  fragments: ObjMap<FragmentDefinitionNode>,
+  fragments: ObjMap<FragmentDetails>,
   variableValues: {
     [variable: string]: unknown;
   },
   runtimeType: GraphQLObjectType,
   operation: OperationDefinitionNode,
 ): {
-  fields: Map<string, ReadonlyArray<FieldDetails>>;
+  groupedFieldSet: GroupedFieldSet;
   newDeferUsages: ReadonlyArray<DeferUsage>;
 };
 /**
@@ -47,14 +59,14 @@ export declare function collectFields(
  */
 export declare function collectSubfields(
   schema: GraphQLSchema,
-  fragments: ObjMap<FragmentDefinitionNode>,
+  fragments: ObjMap<FragmentDetails>,
   variableValues: {
     [variable: string]: unknown;
   },
   operation: OperationDefinitionNode,
   returnType: GraphQLObjectType,
-  fieldDetails: ReadonlyArray<FieldDetails>,
+  fieldGroup: FieldGroup,
 ): {
-  fields: Map<string, ReadonlyArray<FieldDetails>>;
+  groupedFieldSet: GroupedFieldSet;
   newDeferUsages: ReadonlyArray<DeferUsage>;
 };

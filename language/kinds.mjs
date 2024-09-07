@@ -1,7 +1,7 @@
 /**
  * The set of allowed kind values for AST nodes.
  */
-export var Kind;
+var Kind;
 (function (Kind) {
   /** Name */
   Kind['NAME'] = 'Name';
@@ -12,6 +12,7 @@ export var Kind;
   Kind['SELECTION_SET'] = 'SelectionSet';
   Kind['FIELD'] = 'Field';
   Kind['ARGUMENT'] = 'Argument';
+  Kind['FRAGMENT_ARGUMENT'] = 'FragmentArgument';
   /** Nullability Modifiers */
   Kind['LIST_NULLABILITY_OPERATOR'] = 'ListNullabilityOperator';
   Kind['NON_NULL_ASSERTION'] = 'NonNullAssertion';
@@ -62,3 +63,4 @@ export var Kind;
   Kind['ENUM_TYPE_EXTENSION'] = 'EnumTypeExtension';
   Kind['INPUT_OBJECT_TYPE_EXTENSION'] = 'InputObjectTypeExtension';
 })(Kind || (Kind = {}));
+export { Kind };

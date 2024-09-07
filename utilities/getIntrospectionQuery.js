@@ -12,6 +12,7 @@ function getIntrospectionQuery(options) {
     directiveIsRepeatable: false,
     schemaDescription: false,
     inputValueDeprecation: false,
+    oneOf: false,
     ...options,
   };
   const descriptions = optionsWithDefault.descriptions ? 'description' : '';
@@ -27,6 +28,7 @@ function getIntrospectionQuery(options) {
   function inputDeprecation(str) {
     return optionsWithDefault.inputValueDeprecation ? str : '';
   }
+  const oneOf = optionsWithDefault.oneOf ? 'isOneOf' : '';
   return `
     query IntrospectionQuery {
       __schema {
@@ -54,6 +56,7 @@ function getIntrospectionQuery(options) {
       name
       ${descriptions}
       ${specifiedByUrl}
+      ${oneOf}
       fields(includeDeprecated: true) {
         name
         ${descriptions}
