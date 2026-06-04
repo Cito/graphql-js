@@ -5,14 +5,6 @@ import { OperationTypeNode } from "../../language/ast.mjs";
 import { DirectiveLocation } from "../../language/directiveLocation.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { specifiedDirectives } from "../../type/directives.mjs";
-/**
- * Known directives
- *
- * A GraphQL document is only valid if all `@directives` are known by the
- * schema and legally positioned.
- *
- * See https://spec.graphql.org/draft/#sec-Directives-Are-Defined
- */
 export function KnownDirectivesRule(context) {
     const locationsMap = new Map();
     const schema = context.getSchema();
@@ -45,7 +37,8 @@ export function KnownDirectivesRule(context) {
 }
 function getDirectiveLocationForASTPath(ancestors) {
     const appliedTo = ancestors.at(-1);
-    (appliedTo != null && 'kind' in appliedTo) || invariant(false);
+    if (!(appliedTo != null && 'kind' in appliedTo))
+        invariant(false);
     switch (appliedTo.kind) {
         case Kind.OPERATION_DEFINITION:
             return getDirectiveLocationForOperation(appliedTo.operation);
@@ -59,7 +52,8 @@ function getDirectiveLocationForASTPath(ancestors) {
             return DirectiveLocation.FRAGMENT_DEFINITION;
         case Kind.VARIABLE_DEFINITION: {
             const parentNode = ancestors[ancestors.length - 3];
-            ('kind' in parentNode) || invariant(false);
+            if (!('kind' in parentNode))
+                invariant(false);
             return parentNode.kind === Kind.OPERATION_DEFINITION
                 ? DirectiveLocation.VARIABLE_DEFINITION
                 : DirectiveLocation.FRAGMENT_VARIABLE_DEFINITION;
@@ -91,15 +85,17 @@ function getDirectiveLocationForASTPath(ancestors) {
             return DirectiveLocation.INPUT_OBJECT;
         case Kind.INPUT_VALUE_DEFINITION: {
             const parentNode = ancestors.at(-3);
-            (parentNode != null && 'kind' in parentNode) || invariant(false);
+            if (!(parentNode != null && 'kind' in parentNode))
+                invariant(false);
             return parentNode.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION
                 ? DirectiveLocation.INPUT_FIELD_DEFINITION
                 : DirectiveLocation.ARGUMENT_DEFINITION;
         }
-        // Not reachable, all possible types have been considered.
-        /* c8 ignore next 2 */
+        case Kind.DIRECTIVE_DEFINITION:
+        case Kind.DIRECTIVE_EXTENSION:
+            return DirectiveLocation.DIRECTIVE_DEFINITION;
         default:
-            (false) || invariant(false, 'Unexpected kind: ' + inspect(appliedTo.kind));
+            invariant(false, 'Unexpected kind: ' + inspect(appliedTo.kind));
     }
 }
 function getDirectiveLocationForOperation(operation) {
@@ -112,3 +108,4 @@ function getDirectiveLocationForOperation(operation) {
             return DirectiveLocation.SUBSCRIPTION;
     }
 }
+//# sourceMappingURL=KnownDirectivesRule.js.map

@@ -1,14 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ValidationContext = exports.SDLValidationContext = exports.ASTValidationContext = void 0;
-const kinds_js_1 = require("../language/kinds.js");
-const visitor_js_1 = require("../language/visitor.js");
-const TypeInfo_js_1 = require("../utilities/TypeInfo.js");
-/**
- * An instance of this class is passed as the "this" context to all validators,
- * allowing access to commonly useful contextual information from within a
- * validation rule.
- */
+const kinds_ts_1 = require("../language/kinds.js");
+const visitor_ts_1 = require("../language/visitor.js");
+const TypeInfo_ts_1 = require("../utilities/TypeInfo.js");
 class ASTValidationContext {
     constructor(ast, onError) {
         this._ast = ast;
@@ -34,7 +29,7 @@ class ASTValidationContext {
         else {
             fragments = Object.create(null);
             for (const defNode of this.getDocument().definitions) {
-                if (defNode.kind === kinds_js_1.Kind.FRAGMENT_DEFINITION) {
+                if (defNode.kind === kinds_ts_1.Kind.FRAGMENT_DEFINITION) {
                     fragments[defNode.name.value] = defNode;
                 }
             }
@@ -50,7 +45,7 @@ class ASTValidationContext {
             let set;
             while ((set = setsToVisit.pop())) {
                 for (const selection of set.selections) {
-                    if (selection.kind === kinds_js_1.Kind.FRAGMENT_SPREAD) {
+                    if (selection.kind === kinds_ts_1.Kind.FRAGMENT_SPREAD) {
                         spreads.push(selection);
                     }
                     else if (selection.selectionSet) {
@@ -93,6 +88,9 @@ class SDLValidationContext extends ASTValidationContext {
         super(ast, onError);
         this._schema = schema;
     }
+    get hideSuggestions() {
+        return false;
+    }
     get [Symbol.toStringTag]() {
         return 'SDLValidationContext';
     }
@@ -102,15 +100,19 @@ class SDLValidationContext extends ASTValidationContext {
 }
 exports.SDLValidationContext = SDLValidationContext;
 class ValidationContext extends ASTValidationContext {
-    constructor(schema, ast, typeInfo, onError) {
+    constructor(schema, ast, typeInfo, onError, hideSuggestions) {
         super(ast, onError);
         this._schema = schema;
         this._typeInfo = typeInfo;
         this._variableUsages = new Map();
         this._recursiveVariableUsages = new Map();
+        this._hideSuggestions = hideSuggestions ?? false;
     }
     get [Symbol.toStringTag]() {
         return 'ValidationContext';
+    }
+    get hideSuggestions() {
+        return this._hideSuggestions;
     }
     getSchema() {
         return this._schema;
@@ -119,9 +121,9 @@ class ValidationContext extends ASTValidationContext {
         let usages = this._variableUsages.get(node);
         if (!usages) {
             const newUsages = [];
-            const typeInfo = new TypeInfo_js_1.TypeInfo(this._schema, undefined, this._typeInfo.getFragmentSignatureByName());
-            const fragmentDefinition = node.kind === kinds_js_1.Kind.FRAGMENT_DEFINITION ? node : undefined;
-            (0, visitor_js_1.visit)(node, (0, TypeInfo_js_1.visitWithTypeInfo)(typeInfo, {
+            const typeInfo = new TypeInfo_ts_1.TypeInfo(this._schema, undefined, this._typeInfo.getFragmentSignatureByName());
+            const fragmentDefinition = node.kind === kinds_ts_1.Kind.FRAGMENT_DEFINITION ? node : undefined;
+            (0, visitor_ts_1.visit)(node, (0, TypeInfo_ts_1.visitWithTypeInfo)(typeInfo, {
                 VariableDefinition: () => false,
                 Variable(variable) {
                     let fragmentVariableDefinition;
@@ -132,7 +134,8 @@ class ValidationContext extends ASTValidationContext {
                         newUsages.push({
                             node: variable,
                             type: typeInfo.getInputType(),
-                            defaultValue: undefined, // fragment variables have a variable default but no location default, which is what this default value represents
+                            parentType: typeInfo.getParentInputType(),
+                            defaultValue: undefined,
                             fragmentVariableDefinition,
                         });
                     }
@@ -140,6 +143,7 @@ class ValidationContext extends ASTValidationContext {
                         newUsages.push({
                             node: variable,
                             type: typeInfo.getInputType(),
+                            parentType: typeInfo.getParentInputType(),
                             defaultValue: typeInfo.getDefaultValue(),
                             fragmentVariableDefinition: undefined,
                         });
@@ -194,3 +198,4 @@ class ValidationContext extends ASTValidationContext {
     }
 }
 exports.ValidationContext = ValidationContext;
+//# sourceMappingURL=ValidationContext.js.map

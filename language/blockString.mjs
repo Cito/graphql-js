@@ -1,12 +1,4 @@
 import { isWhiteSpace } from "./characterClasses.mjs";
-/**
- * Produces the value of a block string from its parsed raw value, similar to
- * CoffeeScript's block string, Python's docstring trim or Ruby's strip_heredoc.
- *
- * This implements the GraphQL spec's BlockStringValue() static algorithm.
- *
- * @internal
- */
 export function dedentBlockStringLines(lines) {
     let commonIndent = Number.MAX_SAFE_INTEGER;
     let firstNonEmptyLine = null;
@@ -15,7 +7,7 @@ export function dedentBlockStringLines(lines) {
         const line = lines[i];
         const indent = leadingWhitespace(line);
         if (indent === line.length) {
-            continue; // skip empty lines
+            continue;
         }
         firstNonEmptyLine ??= i;
         lastNonEmptyLine = i;
@@ -24,9 +16,7 @@ export function dedentBlockStringLines(lines) {
         }
     }
     return (lines
-        // Remove common indentation from all lines but first.
         .map((line, i) => (i === 0 ? line : line.slice(commonIndent)))
-        // Remove leading and trailing blank lines.
         .slice(firstNonEmptyLine ?? 0, lastNonEmptyLine + 1));
 }
 function leadingWhitespace(str) {
@@ -36,12 +26,9 @@ function leadingWhitespace(str) {
     }
     return i;
 }
-/**
- * @internal
- */
 export function isPrintableAsBlockString(value) {
     if (value === '') {
-        return true; // empty string is printable
+        return true;
     }
     let isEmptyLine = true;
     let hasIndent = false;
@@ -62,19 +49,19 @@ export function isPrintableAsBlockString(value) {
             case 0x000c:
             case 0x000e:
             case 0x000f:
-                return false; // Has non-printable characters
-            case 0x000d: //  \r
-                return false; // Has \r or \r\n which will be replaced as \n
-            case 10: //  \n
+                return false;
+            case 0x000d:
+                return false;
+            case 10:
                 if (isEmptyLine && !seenNonEmptyLine) {
-                    return false; // Has leading new line
+                    return false;
                 }
                 seenNonEmptyLine = true;
                 isEmptyLine = true;
                 hasIndent = false;
                 break;
-            case 9: //   \t
-            case 32: //  <space>
+            case 9:
+            case 32:
                 hasIndent ||= isEmptyLine;
                 break;
             default:
@@ -83,45 +70,32 @@ export function isPrintableAsBlockString(value) {
         }
     }
     if (isEmptyLine) {
-        return false; // Has trailing empty lines
+        return false;
     }
     if (hasCommonIndent && seenNonEmptyLine) {
-        return false; // Has internal indent
+        return false;
     }
     return true;
 }
-/**
- * Print a block string in the indented block form by adding a leading and
- * trailing blank line. However, if a block string starts with whitespace and is
- * a single-line, adding a leading blank line would strip that whitespace.
- *
- * @internal
- */
 export function printBlockString(value, options) {
     const escapedValue = value.replaceAll('"""', '\\"""');
-    // Expand a block string's raw value into independent lines.
     const lines = escapedValue.split(/\r\n|[\n\r]/g);
     const isSingleLine = lines.length === 1;
-    // If common indentation is found we can fix some of those cases by adding leading new line
     const forceLeadingNewLine = lines.length > 1 &&
         lines
             .slice(1)
             .every((line) => line.length === 0 || isWhiteSpace(line.charCodeAt(0)));
-    // Trailing triple quotes just looks confusing but doesn't force trailing new line
     const hasTrailingTripleQuotes = escapedValue.endsWith('\\"""');
-    // Trailing quote (single or double) or slash forces trailing new line
     const hasTrailingQuote = value.endsWith('"') && !hasTrailingTripleQuotes;
     const hasTrailingSlash = value.endsWith('\\');
     const forceTrailingNewline = hasTrailingQuote || hasTrailingSlash;
     const printAsMultipleLines = !options?.minimize &&
-        // add leading and trailing new lines only if it improves readability
         (!isSingleLine ||
             value.length > 70 ||
             forceTrailingNewline ||
             forceLeadingNewLine ||
             hasTrailingTripleQuotes);
     let result = '';
-    // Format a multi-line block quote to account for leading space.
     const skipLeadingNewLine = isSingleLine && isWhiteSpace(value.charCodeAt(0));
     if ((printAsMultipleLines && !skipLeadingNewLine) || forceLeadingNewLine) {
         result += '\n';
@@ -132,3 +106,4 @@ export function printBlockString(value, options) {
     }
     return '"""' + result + '"""';
 }
+//# sourceMappingURL=blockString.js.map

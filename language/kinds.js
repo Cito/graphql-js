@@ -1,68 +1,38 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Kind = void 0;
-/**
- * The set of allowed kind values for AST nodes.
- */
-var Kind;
-(function (Kind) {
-    /** Name */
-    Kind["NAME"] = "Name";
-    /** Document */
-    Kind["DOCUMENT"] = "Document";
-    Kind["OPERATION_DEFINITION"] = "OperationDefinition";
-    Kind["VARIABLE_DEFINITION"] = "VariableDefinition";
-    Kind["SELECTION_SET"] = "SelectionSet";
-    Kind["FIELD"] = "Field";
-    Kind["ARGUMENT"] = "Argument";
-    Kind["FRAGMENT_ARGUMENT"] = "FragmentArgument";
-    /** Nullability Modifiers */
-    Kind["LIST_NULLABILITY_OPERATOR"] = "ListNullabilityOperator";
-    Kind["NON_NULL_ASSERTION"] = "NonNullAssertion";
-    Kind["ERROR_BOUNDARY"] = "ErrorBoundary";
-    /** Fragments */
-    Kind["FRAGMENT_SPREAD"] = "FragmentSpread";
-    Kind["INLINE_FRAGMENT"] = "InlineFragment";
-    Kind["FRAGMENT_DEFINITION"] = "FragmentDefinition";
-    /** Values */
-    Kind["VARIABLE"] = "Variable";
-    Kind["INT"] = "IntValue";
-    Kind["FLOAT"] = "FloatValue";
-    Kind["STRING"] = "StringValue";
-    Kind["BOOLEAN"] = "BooleanValue";
-    Kind["NULL"] = "NullValue";
-    Kind["ENUM"] = "EnumValue";
-    Kind["LIST"] = "ListValue";
-    Kind["OBJECT"] = "ObjectValue";
-    Kind["OBJECT_FIELD"] = "ObjectField";
-    /** Directives */
-    Kind["DIRECTIVE"] = "Directive";
-    /** Types */
-    Kind["NAMED_TYPE"] = "NamedType";
-    Kind["LIST_TYPE"] = "ListType";
-    Kind["NON_NULL_TYPE"] = "NonNullType";
-    /** Type System Definitions */
-    Kind["SCHEMA_DEFINITION"] = "SchemaDefinition";
-    Kind["OPERATION_TYPE_DEFINITION"] = "OperationTypeDefinition";
-    /** Type Definitions */
-    Kind["SCALAR_TYPE_DEFINITION"] = "ScalarTypeDefinition";
-    Kind["OBJECT_TYPE_DEFINITION"] = "ObjectTypeDefinition";
-    Kind["FIELD_DEFINITION"] = "FieldDefinition";
-    Kind["INPUT_VALUE_DEFINITION"] = "InputValueDefinition";
-    Kind["INTERFACE_TYPE_DEFINITION"] = "InterfaceTypeDefinition";
-    Kind["UNION_TYPE_DEFINITION"] = "UnionTypeDefinition";
-    Kind["ENUM_TYPE_DEFINITION"] = "EnumTypeDefinition";
-    Kind["ENUM_VALUE_DEFINITION"] = "EnumValueDefinition";
-    Kind["INPUT_OBJECT_TYPE_DEFINITION"] = "InputObjectTypeDefinition";
-    /** Directive Definitions */
-    Kind["DIRECTIVE_DEFINITION"] = "DirectiveDefinition";
-    /** Type System Extensions */
-    Kind["SCHEMA_EXTENSION"] = "SchemaExtension";
-    /** Type Extensions */
-    Kind["SCALAR_TYPE_EXTENSION"] = "ScalarTypeExtension";
-    Kind["OBJECT_TYPE_EXTENSION"] = "ObjectTypeExtension";
-    Kind["INTERFACE_TYPE_EXTENSION"] = "InterfaceTypeExtension";
-    Kind["UNION_TYPE_EXTENSION"] = "UnionTypeExtension";
-    Kind["ENUM_TYPE_EXTENSION"] = "EnumTypeExtension";
-    Kind["INPUT_OBJECT_TYPE_EXTENSION"] = "InputObjectTypeExtension";
-})(Kind || (exports.Kind = Kind = {}));
+exports.Kind = __importStar(require("./kinds_.js"));
+//# sourceMappingURL=kinds.js.map

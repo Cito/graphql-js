@@ -1,27 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NoUnusedVariablesRule = void 0;
-const GraphQLError_js_1 = require("../../error/GraphQLError.js");
-/**
- * No unused variables
- *
- * A GraphQL operation is only valid if all variables defined by an operation
- * are used, either directly or within a spread fragment.
- *
- * See https://spec.graphql.org/draft/#sec-All-Variables-Used
- */
+exports.NoUnusedVariablesRule = NoUnusedVariablesRule;
+const GraphQLError_ts_1 = require("../../error/GraphQLError.js");
 function NoUnusedVariablesRule(context) {
     return {
         FragmentDefinition(fragment) {
             const usages = context.getVariableUsages(fragment);
             const argumentNameUsed = new Set(usages.map(({ node }) => node.name.value));
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const variableDefinitions = fragment.variableDefinitions ?? [];
             for (const varDef of variableDefinitions) {
                 const argName = varDef.variable.name.value;
                 if (!argumentNameUsed.has(argName)) {
-                    context.reportError(new GraphQLError_js_1.GraphQLError(`Variable "$${argName}" is never used in fragment "${fragment.name.value}".`, { nodes: varDef }));
+                    context.reportError(new GraphQLError_ts_1.GraphQLError(`Variable "$${argName}" is never used in fragment "${fragment.name.value}".`, { nodes: varDef }));
                 }
             }
         },
@@ -34,13 +24,11 @@ function NoUnusedVariablesRule(context) {
                     operationVariableNameUsed.add(varName);
                 }
             }
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const variableDefinitions = operation.variableDefinitions ?? [];
             for (const variableDef of variableDefinitions) {
                 const variableName = variableDef.variable.name.value;
                 if (!operationVariableNameUsed.has(variableName)) {
-                    context.reportError(new GraphQLError_js_1.GraphQLError(operation.name
+                    context.reportError(new GraphQLError_ts_1.GraphQLError(operation.name
                         ? `Variable "$${variableName}" is never used in operation "${operation.name.value}".`
                         : `Variable "$${variableName}" is never used.`, { nodes: variableDef }));
                 }
@@ -48,4 +36,4 @@ function NoUnusedVariablesRule(context) {
         },
     };
 }
-exports.NoUnusedVariablesRule = NoUnusedVariablesRule;
+//# sourceMappingURL=NoUnusedVariablesRule.js.map

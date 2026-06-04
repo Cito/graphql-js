@@ -1,4 +1,4 @@
-import type { ValueNode } from '../language/ast.js';
+import type { ValueNode } from "../language/ast.js";
 /**
  * Sort ValueNode.
  *

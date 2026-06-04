@@ -1,52 +1,38 @@
+import { mapValue } from "../jsutils/mapValue.mjs";
 import { GraphQLError } from "../error/GraphQLError.mjs";
+import { QueryDocumentKeys } from "../language/ast.mjs";
 import { visit, visitInParallel } from "../language/visitor.mjs";
 import { assertValidSchema } from "../type/validate.mjs";
 import { TypeInfo, visitWithTypeInfo } from "../utilities/TypeInfo.mjs";
+import { shouldTrace, validateChannel } from "../diagnostics.mjs";
 import { specifiedRules, specifiedSDLRules } from "./specifiedRules.mjs";
 import { SDLValidationContext, ValidationContext, } from "./ValidationContext.mjs";
-/**
- * Implements the "Validation" section of the spec.
- *
- * Validation runs synchronously, returning an array of encountered errors, or
- * an empty array if no errors were encountered and the document is valid.
- *
- * A list of specific validation rules may be provided. If not provided, the
- * default list of rules defined by the GraphQL specification will be used.
- *
- * Each validation rules is a function which returns a visitor
- * (see the language/visitor API). Visitor methods are expected to return
- * GraphQLErrors, or Arrays of GraphQLErrors when invalid.
- *
- * Validate will stop validation after a `maxErrors` limit has been reached.
- * Attackers can send pathologically invalid queries to induce a DoS attack,
- * so by default `maxErrors` set to 100 errors.
- *
- * Optionally a custom TypeInfo instance may be provided. If not provided, one
- * will be created from the provided schema.
- */
+const QueryDocumentKeysToValidate = mapValue(QueryDocumentKeys, (keys) => keys.filter((key) => key !== 'description'));
+const tooManyValidationErrorsError = new GraphQLError('Too many validation errors, error limit reached. Validation aborted.');
 export function validate(schema, documentAST, rules = specifiedRules, options) {
+    return shouldTrace(validateChannel)
+        ? validateChannel.traceSync(() => validateImpl(schema, documentAST, rules, options), { schema, document: documentAST })
+        : validateImpl(schema, documentAST, rules, options);
+}
+function validateImpl(schema, documentAST, rules, options) {
     const maxErrors = options?.maxErrors ?? 100;
-    // If the schema used for validation is invalid, throw an error.
+    const hideSuggestions = options?.hideSuggestions ?? false;
     assertValidSchema(schema);
-    const abortError = new GraphQLError('Too many validation errors, error limit reached. Validation aborted.');
     const errors = [];
     const typeInfo = new TypeInfo(schema);
     const context = new ValidationContext(schema, documentAST, typeInfo, (error) => {
         if (errors.length >= maxErrors) {
-            throw abortError;
+            throw tooManyValidationErrorsError;
         }
         errors.push(error);
-    });
-    // This uses a specialized visitor which runs multiple visitors in parallel,
-    // while maintaining the visitor skip and break API.
+    }, hideSuggestions);
     const visitor = visitInParallel(rules.map((rule) => rule(context)));
-    // Visit the whole document with each instance of all provided rules.
     try {
-        visit(documentAST, visitWithTypeInfo(typeInfo, visitor));
+        visit(documentAST, visitWithTypeInfo(typeInfo, visitor), QueryDocumentKeysToValidate);
     }
     catch (e) {
-        if (e === abortError) {
-            errors.push(abortError);
+        if (e === tooManyValidationErrorsError) {
+            errors.push(tooManyValidationErrorsError);
         }
         else {
             throw e;
@@ -54,9 +40,6 @@ export function validate(schema, documentAST, rules = specifiedRules, options) {
     }
     return errors;
 }
-/**
- * @internal
- */
 export function validateSDL(documentAST, schemaToExtend, rules = specifiedSDLRules) {
     const errors = [];
     const context = new SDLValidationContext(documentAST, schemaToExtend, (error) => {
@@ -66,27 +49,16 @@ export function validateSDL(documentAST, schemaToExtend, rules = specifiedSDLRul
     visit(documentAST, visitInParallel(visitors));
     return errors;
 }
-/**
- * Utility function which asserts a SDL document is valid by throwing an error
- * if it is invalid.
- *
- * @internal
- */
 export function assertValidSDL(documentAST) {
     const errors = validateSDL(documentAST);
     if (errors.length !== 0) {
         throw new Error(errors.map((error) => error.message).join('\n\n'));
     }
 }
-/**
- * Utility function which asserts a SDL document is valid by throwing an error
- * if it is invalid.
- *
- * @internal
- */
 export function assertValidSDLExtension(documentAST, schema) {
     const errors = validateSDL(documentAST, schema);
     if (errors.length !== 0) {
         throw new Error(errors.map((error) => error.message).join('\n\n'));
     }
 }
+//# sourceMappingURL=validate.js.map

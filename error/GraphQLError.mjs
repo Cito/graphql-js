@@ -1,37 +1,31 @@
 import { isObjectLike } from "../jsutils/isObjectLike.mjs";
 import { getLocation } from "../language/location.mjs";
 import { printLocation, printSourceLocation, } from "../language/printLocation.mjs";
-/**
- * A GraphQLError describes an Error found during the parse, validate, or
- * execute phases of performing a GraphQL operation. In addition to a message
- * and stack trace, it also includes information about the locations in a
- * GraphQL document and/or execution result that correspond to the Error.
- */
 export class GraphQLError extends Error {
     constructor(message, options = {}) {
-        const { nodes, source, positions, path, originalError, extensions } = options;
-        super(message);
+        const { nodes, source, positions, path, originalError, cause, extensions } = options;
+        const hasCause = 'cause' in options;
+        const errorCause = hasCause ? cause : originalError;
+        const errorOptions = hasCause || originalError != null ? { cause: errorCause } : undefined;
+        super(message, errorOptions);
         this.name = 'GraphQLError';
         this.path = path ?? undefined;
-        this.originalError = originalError ?? undefined;
-        // Compute list of blame nodes.
+        const underlyingError = originalError ?? (cause instanceof Error ? cause : undefined);
+        this.originalError = underlyingError;
         this.nodes = undefinedIfEmpty(Array.isArray(nodes) ? nodes : nodes ? [nodes] : undefined);
         const nodeLocations = undefinedIfEmpty(this.nodes
             ?.map((node) => node.loc)
             .filter((loc) => loc != null));
-        // Compute locations in the source for the given nodes/positions.
         this.source = source ?? nodeLocations?.[0]?.source;
         this.positions = positions ?? nodeLocations?.map((loc) => loc.start);
         this.locations =
             positions && source
                 ? positions.map((pos) => getLocation(source, pos))
                 : nodeLocations?.map((loc) => getLocation(loc.source, loc.start));
-        const originalExtensions = isObjectLike(originalError?.extensions)
-            ? originalError?.extensions
+        const originalExtensions = isObjectLike(underlyingError?.extensions)
+            ? underlyingError.extensions
             : undefined;
         this.extensions = extensions ?? originalExtensions ?? Object.create(null);
-        // Only properties prescribed by the spec should be enumerable.
-        // Keep the rest as non-enumerable.
         Object.defineProperties(this, {
             message: {
                 writable: true,
@@ -43,9 +37,6 @@ export class GraphQLError extends Error {
             positions: { enumerable: false },
             originalError: { enumerable: false },
         });
-        // Include (non-enumerable) stack trace.
-        /* c8 ignore start */
-        // FIXME: https://github.com/graphql/graphql-js/issues/2317
         if (originalError?.stack != null) {
             Object.defineProperty(this, 'stack', {
                 value: originalError.stack,
@@ -63,7 +54,6 @@ export class GraphQLError extends Error {
                 configurable: true,
             });
         }
-        /* c8 ignore stop */
     }
     get [Symbol.toStringTag]() {
         return 'GraphQLError';
@@ -103,3 +93,4 @@ export class GraphQLError extends Error {
 function undefinedIfEmpty(array) {
     return array === undefined || array.length === 0 ? undefined : array;
 }
+//# sourceMappingURL=GraphQLError.js.map

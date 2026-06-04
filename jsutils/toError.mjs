@@ -1,7 +1,4 @@
 import { inspect } from "./inspect.mjs";
-/**
- * Sometimes a non-error is thrown, wrap it as an Error instance to ensure a consistent Error interface.
- */
 export function toError(thrownValue) {
     return thrownValue instanceof Error
         ? thrownValue
@@ -14,3 +11,4 @@ class NonErrorThrown extends Error {
         this.thrownValue = thrownValue;
     }
 }
+//# sourceMappingURL=toError.js.map

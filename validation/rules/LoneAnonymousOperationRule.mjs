@@ -1,13 +1,5 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
-/**
- * Lone anonymous operation
- *
- * A GraphQL document is only valid if when it contains an anonymous operation
- * (the query short-hand) that it contains only that one operation definition.
- *
- * See https://spec.graphql.org/draft/#sec-Lone-Anonymous-Operation
- */
 export function LoneAnonymousOperationRule(context) {
     let operationCount = 0;
     return {
@@ -21,3 +13,4 @@ export function LoneAnonymousOperationRule(context) {
         },
     };
 }
+//# sourceMappingURL=LoneAnonymousOperationRule.js.map

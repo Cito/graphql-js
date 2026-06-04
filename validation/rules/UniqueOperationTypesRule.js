@@ -1,12 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UniqueOperationTypesRule = void 0;
-const GraphQLError_js_1 = require("../../error/GraphQLError.js");
-/**
- * Unique operation types
- *
- * A GraphQL document is only valid if it has only one type per operation.
- */
+exports.UniqueOperationTypesRule = UniqueOperationTypesRule;
+const GraphQLError_ts_1 = require("../../error/GraphQLError.js");
 function UniqueOperationTypesRule(context) {
     const schema = context.getSchema();
     const definedOperationTypes = new Map();
@@ -22,17 +17,15 @@ function UniqueOperationTypesRule(context) {
         SchemaExtension: checkOperationTypes,
     };
     function checkOperationTypes(node) {
-        // See: https://github.com/graphql/graphql-js/issues/2203
-        /* c8 ignore next */
         const operationTypesNodes = node.operationTypes ?? [];
         for (const operationType of operationTypesNodes) {
             const operation = operationType.operation;
             const alreadyDefinedOperationType = definedOperationTypes.get(operation);
             if (existingOperationTypes[operation]) {
-                context.reportError(new GraphQLError_js_1.GraphQLError(`Type for ${operation} already defined in the schema. It cannot be redefined.`, { nodes: operationType }));
+                context.reportError(new GraphQLError_ts_1.GraphQLError(`Type for ${operation} already defined in the schema. It cannot be redefined.`, { nodes: operationType }));
             }
             else if (alreadyDefinedOperationType) {
-                context.reportError(new GraphQLError_js_1.GraphQLError(`There can be only one ${operation} type in schema.`, { nodes: [alreadyDefinedOperationType, operationType] }));
+                context.reportError(new GraphQLError_ts_1.GraphQLError(`There can be only one ${operation} type in schema.`, { nodes: [alreadyDefinedOperationType, operationType] }));
             }
             else {
                 definedOperationTypes.set(operation, operationType);
@@ -41,4 +34,4 @@ function UniqueOperationTypesRule(context) {
         return false;
     }
 }
-exports.UniqueOperationTypesRule = UniqueOperationTypesRule;
+//# sourceMappingURL=UniqueOperationTypesRule.js.map

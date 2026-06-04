@@ -2,14 +2,6 @@ import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { print } from "../../language/printer.mjs";
 import { isInputType } from "../../type/definition.mjs";
 import { typeFromAST } from "../../utilities/typeFromAST.mjs";
-/**
- * Variables are input types
- *
- * A GraphQL operation is only valid if all the variables it defines are of
- * input types (scalar, enum, or input object).
- *
- * See https://spec.graphql.org/draft/#sec-Variables-Are-Input-Types
- */
 export function VariablesAreInputTypesRule(context) {
     return {
         VariableDefinition(node) {
@@ -22,3 +14,4 @@ export function VariablesAreInputTypesRule(context) {
         },
     };
 }
+//# sourceMappingURL=VariablesAreInputTypesRule.js.map

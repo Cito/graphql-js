@@ -1,60 +1,51 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.graphqlSync = exports.graphql = void 0;
-const isPromise_js_1 = require("./jsutils/isPromise.js");
-const parser_js_1 = require("./language/parser.js");
-const validate_js_1 = require("./type/validate.js");
-const validate_js_2 = require("./validation/validate.js");
-const execute_js_1 = require("./execution/execute.js");
+exports.graphql = graphql;
+exports.graphqlSync = graphqlSync;
+const isPromise_ts_1 = require("./jsutils/isPromise.js");
+const ensureGraphQLError_ts_1 = require("./error/ensureGraphQLError.js");
+const validate_ts_1 = require("./type/validate.js");
+const harness_ts_1 = require("./harness.js");
 function graphql(args) {
-    // Always return a Promise for a consistent API.
     return new Promise((resolve) => resolve(graphqlImpl(args)));
 }
-exports.graphql = graphql;
-/**
- * The graphqlSync function also fulfills GraphQL operations by parsing,
- * validating, and executing a GraphQL document along side a GraphQL schema.
- * However, it guarantees to complete synchronously (or throw an error) assuming
- * that all field resolvers are also synchronous.
- */
 function graphqlSync(args) {
     const result = graphqlImpl(args);
-    // Assert that the execution was synchronous.
-    if ((0, isPromise_js_1.isPromise)(result)) {
+    if ((0, isPromise_ts_1.isPromise)(result)) {
         throw new Error('GraphQL execution failed to complete synchronously.');
     }
     return result;
 }
-exports.graphqlSync = graphqlSync;
 function graphqlImpl(args) {
-    const { schema, source, rootValue, contextValue, variableValues, operationName, fieldResolver, typeResolver, } = args;
-    // Validate Schema
-    const schemaValidationErrors = (0, validate_js_1.validateSchema)(schema);
+    const harness = args.harness ?? harness_ts_1.defaultHarness;
+    const { schema, source } = args;
+    const schemaValidationErrors = (0, validate_ts_1.validateSchema)(schema);
     if (schemaValidationErrors.length > 0) {
         return { errors: schemaValidationErrors };
     }
-    // Parse
     let document;
     try {
-        document = (0, parser_js_1.parse)(source);
+        document = harness.parse(source, args);
     }
     catch (syntaxError) {
-        return { errors: [syntaxError] };
+        return { errors: [(0, ensureGraphQLError_ts_1.ensureGraphQLError)(syntaxError)] };
     }
-    // Validate
-    const validationErrors = (0, validate_js_2.validate)(schema, document);
-    if (validationErrors.length > 0) {
-        return { errors: validationErrors };
+    if ((0, isPromise_ts_1.isPromise)(document)) {
+        return document.then((resolvedDocument) => validateAndExecute(harness, args, schema, resolvedDocument), (syntaxError) => ({ errors: [(0, ensureGraphQLError_ts_1.ensureGraphQLError)(syntaxError)] }));
     }
-    // Execute
-    return (0, execute_js_1.execute)({
-        schema,
-        document,
-        rootValue,
-        contextValue,
-        variableValues,
-        operationName,
-        fieldResolver,
-        typeResolver,
-    });
+    return validateAndExecute(harness, args, schema, document);
 }
+function validateAndExecute(harness, args, schema, document) {
+    const validationResult = harness.validate(schema, document, args.rules, args);
+    if ((0, isPromise_ts_1.isPromise)(validationResult)) {
+        return validationResult.then((resolvedValidationResult) => checkValidationAndExecute(harness, args, resolvedValidationResult, document));
+    }
+    return checkValidationAndExecute(harness, args, validationResult, document);
+}
+function checkValidationAndExecute(harness, args, validationResult, document) {
+    if (validationResult.length > 0) {
+        return { errors: validationResult };
+    }
+    return harness.execute({ ...args, document });
+}
+//# sourceMappingURL=graphql.js.map

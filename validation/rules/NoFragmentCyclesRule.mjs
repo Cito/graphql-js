@@ -1,19 +1,7 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
-/**
- * No fragment cycles
- *
- * The graph of fragment spreads must not form any cycles including spreading itself.
- * Otherwise an operation could infinitely spread or infinitely execute on cycles in the underlying data.
- *
- * See https://spec.graphql.org/draft/#sec-Fragment-spreads-must-not-form-cycles
- */
 export function NoFragmentCyclesRule(context) {
-    // Tracks already visited fragments to maintain O(N) and to ensure that cycles
-    // are not redundantly reported.
     const visitedFrags = new Set();
-    // Array of AST nodes used to produce meaningful errors
     const spreadPath = [];
-    // Position in the spread path
     const spreadPathIndexByName = Object.create(null);
     return {
         OperationDefinition: () => false,
@@ -22,9 +10,6 @@ export function NoFragmentCyclesRule(context) {
             return false;
         },
     };
-    // This does a straight-forward DFS to find cycles.
-    // It does not terminate when a cycle was found but continues to explore
-    // the graph to find all possible cycles.
     function detectCycleRecursive(fragment) {
         if (visitedFrags.has(fragment.name.value)) {
             return;
@@ -60,3 +45,4 @@ export function NoFragmentCyclesRule(context) {
         spreadPathIndexByName[fragmentName] = undefined;
     }
 }
+//# sourceMappingURL=NoFragmentCyclesRule.js.map

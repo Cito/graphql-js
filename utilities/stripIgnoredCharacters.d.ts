@@ -1,4 +1,5 @@
-import { Source } from '../language/source.js';
+/** @category AST Utilities */
+import { Source } from "../language/source.js";
 /**
  * Strips characters that are not significant to the validity or execution
  * of a GraphQL document:
@@ -18,9 +19,9 @@ import { Source } from '../language/source.js';
  * Warning: It is guaranteed that this function will always produce stable results.
  * However, it's not guaranteed that it will stay the same between different
  * releases due to bugfixes or changes in the GraphQL specification.
- *
- * Query example:
- *
+ * @param source - The GraphQL source text or source object.
+ * @returns A semantically equivalent GraphQL source string without ignored characters.
+ * @example Query source
  * ```graphql
  * query SomeQuery($foo: String!, $bar: String) {
  *   someField(foo: $foo, bar: $bar) {
@@ -38,9 +39,7 @@ import { Source } from '../language/source.js';
  * ```graphql
  * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
  * ```
- *
- * SDL example:
- *
+ * @example SDL source
  * ```graphql
  * """
  * Type description
@@ -57,6 +56,14 @@ import { Source } from '../language/source.js';
  *
  * ```graphql
  * """Type description""" type Foo{"""Field description""" bar:String}
+ * ```
+ * @example
+ * ```ts
+ * import { stripIgnoredCharacters } from 'graphql/utilities';
+ *
+ * const source = stripIgnoredCharacters('query Example { name }');
+ *
+ * source; // => 'query Example{name}'
  * ```
  */
 export declare function stripIgnoredCharacters(source: string | Source): string;

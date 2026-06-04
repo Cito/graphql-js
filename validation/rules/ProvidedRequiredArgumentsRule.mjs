@@ -2,61 +2,33 @@ import { inspect } from "../../jsutils/inspect.mjs";
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { print } from "../../language/printer.mjs";
-import { getNamedType, isRequiredArgument, isType, } from "../../type/definition.mjs";
+import { isRequiredArgument, isType } from "../../type/definition.mjs";
 import { specifiedDirectives } from "../../type/directives.mjs";
-import { isIntrospectionType } from "../../type/introspection.mjs";
 import { typeFromAST } from "../../utilities/typeFromAST.mjs";
-/**
- * Provided required arguments
- *
- * A field or directive is only valid if all required (non-null without a
- * default value) field arguments have been provided.
- */
 export function ProvidedRequiredArgumentsRule(context) {
     return {
-        // eslint-disable-next-line new-cap
         ...ProvidedRequiredArgumentsOnDirectivesRule(context),
         Field: {
-            // Validate on leave to allow for deeper errors to appear first.
             leave(fieldNode) {
                 const fieldDef = context.getFieldDef();
                 if (!fieldDef) {
                     return false;
                 }
-                const providedArgs = new Set(
-                // FIXME: https://github.com/graphql/graphql-js/issues/2203
-                /* c8 ignore next */
-                fieldNode.arguments?.map((arg) => arg.name.value));
+                const providedArgs = new Set(fieldNode.arguments?.map((arg) => arg.name.value));
                 for (const argDef of fieldDef.args) {
                     if (!providedArgs.has(argDef.name) && isRequiredArgument(argDef)) {
-                        const fieldType = getNamedType(context.getType());
-                        let parentTypeStr;
-                        if (fieldType && isIntrospectionType(fieldType)) {
-                            parentTypeStr = '<meta>.';
-                        }
-                        else {
-                            const parentType = context.getParentType();
-                            if (parentType) {
-                                parentTypeStr = `${context.getParentType()}.`;
-                            }
-                        }
-                        const argTypeStr = inspect(argDef.type);
-                        context.reportError(new GraphQLError(`Argument "${parentTypeStr}${fieldDef.name}(${argDef.name}:)" of type "${argTypeStr}" is required, but it was not provided.`, { nodes: fieldNode }));
+                        context.reportError(new GraphQLError(`Argument "${argDef}" of type "${argDef.type}" is required, but it was not provided.`, { nodes: fieldNode }));
                     }
                 }
             },
         },
         FragmentSpread: {
-            // Validate on leave to allow for deeper errors to appear first.
             leave(spreadNode) {
                 const fragmentSignature = context.getFragmentSignature();
                 if (!fragmentSignature) {
                     return false;
                 }
-                const providedArgs = new Set(
-                // FIXME: https://github.com/graphql/graphql-js/issues/2203
-                /* c8 ignore next */
-                spreadNode.arguments?.map((arg) => arg.name.value));
+                const providedArgs = new Set(spreadNode.arguments?.map((arg) => arg.name.value));
                 for (const [varName, variableDefinition,] of fragmentSignature.variableDefinitions) {
                     if (!providedArgs.has(varName) &&
                         isRequiredArgumentNode(variableDefinition)) {
@@ -69,9 +41,6 @@ export function ProvidedRequiredArgumentsRule(context) {
         },
     };
 }
-/**
- * @internal
- */
 export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
     const requiredArgsMap = new Map();
     const schema = context.getSchema();
@@ -82,8 +51,6 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
     const astDefinitions = context.getDocument().definitions;
     for (const def of astDefinitions) {
         if (def.kind === Kind.DIRECTIVE_DEFINITION) {
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const argNodes = def.arguments ?? [];
             requiredArgsMap.set(def.name.value, new Map(argNodes
                 .filter(isRequiredArgumentNode)
@@ -92,13 +59,10 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
     }
     return {
         Directive: {
-            // Validate on leave to allow for deeper errors to appear first.
             leave(directiveNode) {
                 const directiveName = directiveNode.name.value;
                 const requiredArgs = requiredArgsMap.get(directiveName);
                 if (requiredArgs != null) {
-                    // FIXME: https://github.com/graphql/graphql-js/issues/2203
-                    /* c8 ignore next */
                     const argNodes = directiveNode.arguments ?? [];
                     const argNodeMap = new Set(argNodes.map((arg) => arg.name.value));
                     for (const [argName, argDef] of requiredArgs.entries()) {
@@ -117,3 +81,4 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
 function isRequiredArgumentNode(arg) {
     return arg.type.kind === Kind.NON_NULL_TYPE && arg.defaultValue == null;
 }
+//# sourceMappingURL=ProvidedRequiredArgumentsRule.js.map

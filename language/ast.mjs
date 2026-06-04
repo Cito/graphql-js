@@ -1,7 +1,3 @@
-/**
- * Contains a range of UTF-8 character offsets and token references that
- * identify the region of the source from which the AST derived.
- */
 export class Location {
     constructor(startToken, endToken, source) {
         this.start = startToken.start;
@@ -17,19 +13,13 @@ export class Location {
         return { start: this.start, end: this.end };
     }
 }
-/**
- * Represents a range of characters represented by a lexical token
- * within a Source.
- */
 export class Token {
-    // eslint-disable-next-line @typescript-eslint/max-params
     constructor(kind, start, end, line, column, value) {
         this.kind = kind;
         this.start = start;
         this.end = end;
         this.line = line;
         this.column = column;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.value = value;
         this.prev = null;
         this.next = null;
@@ -46,50 +36,37 @@ export class Token {
         };
     }
 }
-/**
- * @internal
- */
 export const QueryDocumentKeys = {
     Name: [],
     Document: ['definitions'],
     OperationDefinition: [
+        'description',
         'name',
         'variableDefinitions',
         'directives',
         'selectionSet',
     ],
-    VariableDefinition: ['variable', 'type', 'defaultValue', 'directives'],
+    VariableDefinition: [
+        'description',
+        'variable',
+        'type',
+        'defaultValue',
+        'directives',
+    ],
     Variable: ['name'],
     SelectionSet: ['selections'],
-    Field: [
-        'alias',
-        'name',
-        'arguments',
-        'directives',
-        'selectionSet',
-        // Note: Client Controlled Nullability is experimental and may be changed
-        // or removed in the future.
-        'nullabilityAssertion',
-    ],
+    Field: ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
     Argument: ['name', 'value'],
     FragmentArgument: ['name', 'value'],
-    // Note: Client Controlled Nullability is experimental and may be changed
-    // or removed in the future.
-    ListNullabilityOperator: ['nullabilityAssertion'],
-    NonNullAssertion: ['nullabilityAssertion'],
-    ErrorBoundary: ['nullabilityAssertion'],
     FragmentSpread: [
         'name',
-        // Note: Fragment arguments are experimental and may be changed or removed
-        // in the future.
         'arguments',
         'directives',
     ],
     InlineFragment: ['typeCondition', 'directives', 'selectionSet'],
     FragmentDefinition: [
+        'description',
         'name',
-        // Note: Fragment variables are experimental and may be changed or removed
-        // in the future.
         'variableDefinitions',
         'typeCondition',
         'directives',
@@ -137,27 +114,35 @@ export const QueryDocumentKeys = {
     EnumTypeDefinition: ['description', 'name', 'directives', 'values'],
     EnumValueDefinition: ['description', 'name', 'directives'],
     InputObjectTypeDefinition: ['description', 'name', 'directives', 'fields'],
-    DirectiveDefinition: ['description', 'name', 'arguments', 'locations'],
+    DirectiveDefinition: [
+        'description',
+        'name',
+        'arguments',
+        'directives',
+        'locations',
+    ],
     SchemaExtension: ['directives', 'operationTypes'],
+    DirectiveExtension: ['name', 'directives'],
     ScalarTypeExtension: ['name', 'directives'],
     ObjectTypeExtension: ['name', 'interfaces', 'directives', 'fields'],
     InterfaceTypeExtension: ['name', 'interfaces', 'directives', 'fields'],
     UnionTypeExtension: ['name', 'directives', 'types'],
     EnumTypeExtension: ['name', 'directives', 'values'],
     InputObjectTypeExtension: ['name', 'directives', 'fields'],
+    TypeCoordinate: ['name'],
+    MemberCoordinate: ['name', 'memberName'],
+    ArgumentCoordinate: ['name', 'fieldName', 'argumentName'],
+    DirectiveCoordinate: ['name'],
+    DirectiveArgumentCoordinate: ['name', 'argumentName'],
 };
 const kindValues = new Set(Object.keys(QueryDocumentKeys));
-/**
- * @internal
- */
 export function isNode(maybeNode) {
     const maybeKind = maybeNode?.kind;
     return typeof maybeKind === 'string' && kindValues.has(maybeKind);
 }
-var OperationTypeNode;
-(function (OperationTypeNode) {
-    OperationTypeNode["QUERY"] = "query";
-    OperationTypeNode["MUTATION"] = "mutation";
-    OperationTypeNode["SUBSCRIPTION"] = "subscription";
-})(OperationTypeNode || (OperationTypeNode = {}));
-export { OperationTypeNode };
+export const OperationTypeNode = {
+    QUERY: 'query',
+    MUTATION: 'mutation',
+    SUBSCRIPTION: 'subscription',
+};
+//# sourceMappingURL=ast.js.map

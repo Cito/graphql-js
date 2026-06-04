@@ -1,14 +1,6 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { isExecutableDefinitionNode } from "../../language/predicates.mjs";
-/**
- * Executable definitions
- *
- * A GraphQL document is only valid for execution if all definitions are either
- * operation or fragment definitions.
- *
- * See https://spec.graphql.org/draft/#sec-Executable-Definitions
- */
 export function ExecutableDefinitionsRule(context) {
     return {
         Document(node) {
@@ -27,3 +19,4 @@ export function ExecutableDefinitionsRule(context) {
         },
     };
 }
+//# sourceMappingURL=ExecutableDefinitionsRule.js.map

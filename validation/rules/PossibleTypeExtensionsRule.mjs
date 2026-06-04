@@ -6,11 +6,6 @@ import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { isTypeDefinitionNode } from "../../language/predicates.mjs";
 import { isEnumType, isInputObjectType, isInterfaceType, isObjectType, isScalarType, isUnionType, } from "../../type/definition.mjs";
-/**
- * Possible type extension
- *
- * A type extension is only valid if the type is defined and has the same kind.
- */
 export function PossibleTypeExtensionsRule(context) {
     const schema = context.getSchema();
     const definedTypes = new Map();
@@ -51,9 +46,8 @@ export function PossibleTypeExtensionsRule(context) {
                 ...definedTypes.keys(),
                 ...Object.keys(schema?.getTypeMap() ?? {}),
             ];
-            const suggestedTypes = suggestionList(typeName, allTypeNames);
             context.reportError(new GraphQLError(`Cannot extend type "${typeName}" because it is not defined.` +
-                didYouMean(suggestedTypes), { nodes: node.name }));
+                didYouMean(suggestionList(typeName, allTypeNames)), { nodes: node.name }));
         }
     }
 }
@@ -84,9 +78,7 @@ function typeToExtKind(type) {
     if (isInputObjectType(type)) {
         return Kind.INPUT_OBJECT_TYPE_EXTENSION;
     }
-    /* c8 ignore next 3 */
-    // Not reachable. All possible types have been considered
-    (false) || invariant(false, 'Unexpected type: ' + inspect(type));
+    invariant(false, 'Unexpected type: ' + inspect(type));
 }
 function extensionKindToTypeName(kind) {
     switch (kind) {
@@ -102,9 +94,8 @@ function extensionKindToTypeName(kind) {
             return 'enum';
         case Kind.INPUT_OBJECT_TYPE_EXTENSION:
             return 'input object';
-        // Not reachable. All possible types have been considered
-        /* c8 ignore next 2 */
         default:
-            (false) || invariant(false, 'Unexpected kind: ' + inspect(kind));
+            invariant(false, 'Unexpected kind: ' + inspect(kind));
     }
 }
+//# sourceMappingURL=PossibleTypeExtensionsRule.js.map

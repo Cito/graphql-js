@@ -1,12 +1,16 @@
-import type { DocumentNode, ExecutableDefinitionNode } from '../language/ast.js';
+/** @category Typed Documents */
+import type { DocumentNode, ExecutableDefinitionNode } from "../language/ast.js";
 /**
  * Wrapper type that contains DocumentNode and types that can be deduced from it.
+ * @typeParam TResponseData - Typed GraphQL response data shape.
+ * @typeParam TRequestVariables - Typed GraphQL request variables shape.
  */
 export interface TypedQueryDocumentNode<TResponseData = {
     [key: string]: any;
 }, TRequestVariables = {
     [key: string]: any;
 }> extends DocumentNode {
+    /** Top-level executable and type-system definitions in this document. */
     readonly definitions: ReadonlyArray<ExecutableDefinitionNode>;
     /**
      * This type is used to ensure that the variables you pass in to the query are assignable to Variables

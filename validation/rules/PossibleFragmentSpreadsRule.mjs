@@ -3,13 +3,6 @@ import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { isCompositeType } from "../../type/definition.mjs";
 import { doTypesOverlap } from "../../utilities/typeComparators.mjs";
 import { typeFromAST } from "../../utilities/typeFromAST.mjs";
-/**
- * Possible fragment spread
- *
- * A fragment spread is only valid if the type condition could ever possibly
- * be true: if there is a non-empty intersection of the possible parent types,
- * and possible types which pass the type condition.
- */
 export function PossibleFragmentSpreadsRule(context) {
     return {
         InlineFragment(node) {
@@ -46,3 +39,4 @@ function getFragmentType(context, name) {
         }
     }
 }
+//# sourceMappingURL=PossibleFragmentSpreadsRule.js.map

@@ -2,14 +2,6 @@ import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { isTypeDefinitionNode, isTypeExtensionNode, } from "../../language/predicates.mjs";
 import { specifiedDirectives } from "../../type/directives.mjs";
-/**
- * Unique directive names per location
- *
- * A GraphQL document is only valid if all non-repeatable directives at
- * a given location are uniquely named.
- *
- * See https://spec.graphql.org/draft/#sec-Directives-Are-Unique-Per-Location
- */
 export function UniqueDirectivesPerLocationRule(context) {
     const uniqueDirectiveMap = new Map();
     const schema = context.getSchema();
@@ -27,10 +19,8 @@ export function UniqueDirectivesPerLocationRule(context) {
     }
     const schemaDirectives = new Map();
     const typeDirectivesMap = new Map();
+    const directiveDirectivesMap = new Map();
     return {
-        // Many different AST nodes may contain directives. Rather than listing
-        // them all, just listen for entering any node, and check to see if it
-        // defines any directives.
         enter(node) {
             if (!('directives' in node) || !node.directives) {
                 return;
@@ -46,6 +36,15 @@ export function UniqueDirectivesPerLocationRule(context) {
                 if (seenDirectives === undefined) {
                     seenDirectives = new Map();
                     typeDirectivesMap.set(typeName, seenDirectives);
+                }
+            }
+            else if (node.kind === Kind.DIRECTIVE_DEFINITION ||
+                node.kind === Kind.DIRECTIVE_EXTENSION) {
+                const directiveName = node.name.value;
+                seenDirectives = directiveDirectivesMap.get(directiveName);
+                if (seenDirectives === undefined) {
+                    seenDirectives = new Map();
+                    directiveDirectivesMap.set(directiveName, seenDirectives);
                 }
             }
             else {
@@ -66,3 +65,4 @@ export function UniqueDirectivesPerLocationRule(context) {
         },
     };
 }
+//# sourceMappingURL=UniqueDirectivesPerLocationRule.js.map

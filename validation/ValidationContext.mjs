@@ -1,11 +1,6 @@
 import { Kind } from "../language/kinds.mjs";
 import { visit } from "../language/visitor.mjs";
 import { TypeInfo, visitWithTypeInfo } from "../utilities/TypeInfo.mjs";
-/**
- * An instance of this class is passed as the "this" context to all validators,
- * allowing access to commonly useful contextual information from within a
- * validation rule.
- */
 export class ASTValidationContext {
     constructor(ast, onError) {
         this._ast = ast;
@@ -89,6 +84,9 @@ export class SDLValidationContext extends ASTValidationContext {
         super(ast, onError);
         this._schema = schema;
     }
+    get hideSuggestions() {
+        return false;
+    }
     get [Symbol.toStringTag]() {
         return 'SDLValidationContext';
     }
@@ -97,15 +95,19 @@ export class SDLValidationContext extends ASTValidationContext {
     }
 }
 export class ValidationContext extends ASTValidationContext {
-    constructor(schema, ast, typeInfo, onError) {
+    constructor(schema, ast, typeInfo, onError, hideSuggestions) {
         super(ast, onError);
         this._schema = schema;
         this._typeInfo = typeInfo;
         this._variableUsages = new Map();
         this._recursiveVariableUsages = new Map();
+        this._hideSuggestions = hideSuggestions ?? false;
     }
     get [Symbol.toStringTag]() {
         return 'ValidationContext';
+    }
+    get hideSuggestions() {
+        return this._hideSuggestions;
     }
     getSchema() {
         return this._schema;
@@ -127,7 +129,8 @@ export class ValidationContext extends ASTValidationContext {
                         newUsages.push({
                             node: variable,
                             type: typeInfo.getInputType(),
-                            defaultValue: undefined, // fragment variables have a variable default but no location default, which is what this default value represents
+                            parentType: typeInfo.getParentInputType(),
+                            defaultValue: undefined,
                             fragmentVariableDefinition,
                         });
                     }
@@ -135,6 +138,7 @@ export class ValidationContext extends ASTValidationContext {
                         newUsages.push({
                             node: variable,
                             type: typeInfo.getInputType(),
+                            parentType: typeInfo.getParentInputType(),
                             defaultValue: typeInfo.getDefaultValue(),
                             fragmentVariableDefinition: undefined,
                         });
@@ -188,3 +192,4 @@ export class ValidationContext extends ASTValidationContext {
         return this._typeInfo.getEnumValue();
     }
 }
+//# sourceMappingURL=ValidationContext.js.map

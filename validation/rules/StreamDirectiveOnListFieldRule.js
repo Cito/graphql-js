@@ -1,14 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.StreamDirectiveOnListFieldRule = void 0;
-const GraphQLError_js_1 = require("../../error/GraphQLError.js");
-const definition_js_1 = require("../../type/definition.js");
-const directives_js_1 = require("../../type/directives.js");
-/**
- * Stream directives are used on list fields
- *
- * A GraphQL document is only valid if stream directives are used on list fields.
- */
+exports.StreamDirectiveOnListFieldRule = StreamDirectiveOnListFieldRule;
+const GraphQLError_ts_1 = require("../../error/GraphQLError.js");
+const definition_ts_1 = require("../../type/definition.js");
+const directives_ts_1 = require("../../type/directives.js");
 function StreamDirectiveOnListFieldRule(context) {
     return {
         Directive(node) {
@@ -16,12 +11,12 @@ function StreamDirectiveOnListFieldRule(context) {
             const parentType = context.getParentType();
             if (fieldDef &&
                 parentType &&
-                node.name.value === directives_js_1.GraphQLStreamDirective.name &&
-                !((0, definition_js_1.isListType)(fieldDef.type) ||
-                    ((0, definition_js_1.isWrappingType)(fieldDef.type) && (0, definition_js_1.isListType)(fieldDef.type.ofType)))) {
-                context.reportError(new GraphQLError_js_1.GraphQLError(`Directive "@stream" cannot be used on non-list field "${parentType}.${fieldDef.name}".`, { nodes: node }));
+                node.name.value === directives_ts_1.GraphQLStreamDirective.name &&
+                !((0, definition_ts_1.isListType)(fieldDef.type) ||
+                    ((0, definition_ts_1.isWrappingType)(fieldDef.type) && (0, definition_ts_1.isListType)(fieldDef.type.ofType)))) {
+                context.reportError(new GraphQLError_ts_1.GraphQLError(`Directive "@stream" cannot be used on non-list field "${parentType}.${fieldDef.name}".`, { nodes: node }));
             }
         },
     };
 }
-exports.StreamDirectiveOnListFieldRule = StreamDirectiveOnListFieldRule;
+//# sourceMappingURL=StreamDirectiveOnListFieldRule.js.map

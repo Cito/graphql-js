@@ -1,11 +1,4 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
-/**
- * Unique fragment names
- *
- * A GraphQL document is only valid if all defined fragments have unique names.
- *
- * See https://spec.graphql.org/draft/#sec-Fragment-Name-Uniqueness
- */
 export function UniqueFragmentNamesRule(context) {
     const knownFragmentNames = new Map();
     return {
@@ -23,3 +16,4 @@ export function UniqueFragmentNamesRule(context) {
         },
     };
 }
+//# sourceMappingURL=UniqueFragmentNamesRule.js.map

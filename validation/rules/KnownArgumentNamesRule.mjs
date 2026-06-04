@@ -3,18 +3,8 @@ import { suggestionList } from "../../jsutils/suggestionList.mjs";
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { specifiedDirectives } from "../../type/directives.mjs";
-/**
- * Known argument names
- *
- * A GraphQL field is only valid if all supplied arguments are defined by
- * that field.
- *
- * See https://spec.graphql.org/draft/#sec-Argument-Names
- * See https://spec.graphql.org/draft/#sec-Directives-Are-In-Valid-Locations
- */
 export function KnownArgumentNamesRule(context) {
     return {
-        // eslint-disable-next-line new-cap
         ...KnownArgumentNamesOnDirectivesRule(context),
         FragmentArgument(argNode) {
             const fragmentSignature = context.getFragmentSignature();
@@ -22,7 +12,9 @@ export function KnownArgumentNamesRule(context) {
                 const varDef = fragmentSignature.variableDefinitions.get(argNode.name.value);
                 if (!varDef) {
                     const argName = argNode.name.value;
-                    const suggestions = suggestionList(argName, Array.from(fragmentSignature.variableDefinitions.values()).map((varSignature) => varSignature.variable.name.value));
+                    const suggestions = context.hideSuggestions
+                        ? []
+                        : suggestionList(argName, Array.from(fragmentSignature.variableDefinitions.values()).map((varSignature) => varSignature.variable.name.value));
                     context.reportError(new GraphQLError(`Unknown argument "${argName}" on fragment "${fragmentSignature.definition.name.value}".` +
                         didYouMean(suggestions), { nodes: argNode }));
                 }
@@ -31,19 +23,17 @@ export function KnownArgumentNamesRule(context) {
         Argument(argNode) {
             const argDef = context.getArgument();
             const fieldDef = context.getFieldDef();
-            const parentType = context.getParentType();
-            if (!argDef && fieldDef && parentType) {
+            if (!argDef && fieldDef) {
                 const argName = argNode.name.value;
-                const suggestions = suggestionList(argName, fieldDef.args.map((arg) => arg.name));
-                context.reportError(new GraphQLError(`Unknown argument "${argName}" on field "${parentType}.${fieldDef.name}".` +
+                const suggestions = context.hideSuggestions
+                    ? []
+                    : suggestionList(argName, fieldDef.args.map((arg) => arg.name));
+                context.reportError(new GraphQLError(`Unknown argument "${argName}" on field "${fieldDef}".` +
                     didYouMean(suggestions), { nodes: argNode }));
             }
         },
     };
 }
-/**
- * @internal
- */
 export function KnownArgumentNamesOnDirectivesRule(context) {
     const directiveArgs = new Map();
     const schema = context.getSchema();
@@ -56,8 +46,6 @@ export function KnownArgumentNamesOnDirectivesRule(context) {
     const astDefinitions = context.getDocument().definitions;
     for (const def of astDefinitions) {
         if (def.kind === Kind.DIRECTIVE_DEFINITION) {
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const argsNodes = def.arguments ?? [];
             directiveArgs.set(def.name.value, argsNodes.map((arg) => arg.name.value));
         }
@@ -72,7 +60,7 @@ export function KnownArgumentNamesOnDirectivesRule(context) {
                     if (!knownArgs.includes(argName)) {
                         const suggestions = suggestionList(argName, knownArgs);
                         context.reportError(new GraphQLError(`Unknown argument "${argName}" on directive "@${directiveName}".` +
-                            didYouMean(suggestions), { nodes: argNode }));
+                            (context.hideSuggestions ? '' : didYouMean(suggestions)), { nodes: argNode }));
                     }
                 }
             }
@@ -80,3 +68,4 @@ export function KnownArgumentNamesOnDirectivesRule(context) {
         },
     };
 }
+//# sourceMappingURL=KnownArgumentNamesRule.js.map

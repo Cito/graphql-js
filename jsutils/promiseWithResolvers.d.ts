@@ -1,7 +1,9 @@
-import type { PromiseOrValue } from './PromiseOrValue.js';
+import type { PromiseOrValue } from "./PromiseOrValue.js";
 /**
  * Based on Promise.withResolvers proposal
  * https://github.com/tc39/proposal-promise-with-resolvers
+ *
+ * @internal
  */
 export declare function promiseWithResolvers<T>(): {
     promise: Promise<T>;

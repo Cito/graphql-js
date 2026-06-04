@@ -1,15 +1,12 @@
 import { inspect } from "../jsutils/inspect.mjs";
 import { instanceOf } from "../jsutils/instanceOf.mjs";
-import { toObjMap } from "../jsutils/toObjMap.mjs";
+import { toObjMapWithSymbols } from "../jsutils/toObjMap.mjs";
 import { OperationTypeNode } from "../language/ast.mjs";
 import { getNamedType, isInputObjectType, isInterfaceType, isObjectType, isUnionType, } from "./definition.mjs";
 import { isDirective, specifiedDirectives } from "./directives.mjs";
 import { __Schema, SchemaMetaFieldDef, TypeMetaFieldDef, TypeNameMetaFieldDef, } from "./introspection.mjs";
-/**
- * Test if the given value is a GraphQL schema.
- */
 export function isSchema(schema) {
-    return instanceOf(schema, GraphQLSchema);
+    return instanceOf(schema, schemaSymbol, GraphQLSchema);
 }
 export function assertSchema(schema) {
     if (!isSchema(schema)) {
@@ -17,95 +14,23 @@ export function assertSchema(schema) {
     }
     return schema;
 }
-/**
- * Schema Definition
- *
- * A Schema is created by supplying the root types of each type of operation,
- * query and mutation (optional). A schema definition is then supplied to the
- * validator and executor.
- *
- * Example:
- *
- * ```ts
- * const MyAppSchema = new GraphQLSchema({
- *   query: MyAppQueryRootType,
- *   mutation: MyAppMutationRootType,
- * })
- * ```
- *
- * Note: When the schema is constructed, by default only the types that are
- * reachable by traversing the root types are included, other types must be
- * explicitly referenced.
- *
- * Example:
- *
- * ```ts
- * const characterInterface = new GraphQLInterfaceType({
- *   name: 'Character',
- *   ...
- * });
- *
- * const humanType = new GraphQLObjectType({
- *   name: 'Human',
- *   interfaces: [characterInterface],
- *   ...
- * });
- *
- * const droidType = new GraphQLObjectType({
- *   name: 'Droid',
- *   interfaces: [characterInterface],
- *   ...
- * });
- *
- * const schema = new GraphQLSchema({
- *   query: new GraphQLObjectType({
- *     name: 'Query',
- *     fields: {
- *       hero: { type: characterInterface, ... },
- *     }
- *   }),
- *   ...
- *   // Since this schema references only the `Character` interface it's
- *   // necessary to explicitly list the types that implement it if
- *   // you want them to be included in the final schema.
- *   types: [humanType, droidType],
- * })
- * ```
- *
- * Note: If an array of `directives` are provided to GraphQLSchema, that will be
- * the exact list of directives represented and allowed. If `directives` is not
- * provided then a default set of the specified directives (e.g. `@include` and
- * `@skip`) will be used. If you wish to provide *additional* directives to these
- * specified directives, you must explicitly declare them. Example:
- *
- * ```ts
- * const MyAppSchema = new GraphQLSchema({
- *   ...
- *   directives: specifiedDirectives.concat([ myCustomDirective ]),
- * })
- * ```
- */
+const schemaSymbol = Symbol('Schema');
 export class GraphQLSchema {
     constructor(config) {
-        // If this schema was built from a source known to be valid, then it may be
-        // marked with assumeValid to avoid an additional type system validation.
+        this.__kind = schemaSymbol;
+        this.assumeValid = config.assumeValid ?? false;
         this.__validationErrors = config.assumeValid === true ? [] : undefined;
         this.description = config.description;
-        this.extensions = toObjMap(config.extensions);
+        this.extensions = toObjMapWithSymbols(config.extensions);
         this.astNode = config.astNode;
         this.extensionASTNodes = config.extensionASTNodes ?? [];
         this._queryType = config.query;
         this._mutationType = config.mutation;
         this._subscriptionType = config.subscription;
-        // Provide specified directives (e.g. @include and @skip) by default.
         this._directives = config.directives ?? specifiedDirectives;
-        // To preserve order of user-provided types, we add first to add them to
-        // the set of "collected" types, so `collectReferencedTypes` ignore them.
         const allReferencedTypes = new Set(config.types);
         if (config.types != null) {
             for (const type of config.types) {
-                // When we ready to process this type, we remove it from "collected" types
-                // and then add it together with all dependent types in the correct position.
                 allReferencedTypes.delete(type);
                 collectReferencedTypes(type, allReferencedTypes);
             }
@@ -120,7 +45,6 @@ export class GraphQLSchema {
             collectReferencedTypes(this._subscriptionType, allReferencedTypes);
         }
         for (const directive of this._directives) {
-            // Directives are not validated until validateSchema() is called.
             if (isDirective(directive)) {
                 for (const arg of directive.args) {
                     collectReferencedTypes(arg.type, allReferencedTypes);
@@ -128,10 +52,8 @@ export class GraphQLSchema {
             }
         }
         collectReferencedTypes(__Schema, allReferencedTypes);
-        // Storing the resulting map for reference by the schema.
         this._typeMap = Object.create(null);
         this._subTypeMap = new Map();
-        // Keep track of all implementations by interface name.
         this._implementationsMap = Object.create(null);
         for (const namedType of allReferencedTypes) {
             if (namedType == null) {
@@ -143,31 +65,25 @@ export class GraphQLSchema {
             }
             this._typeMap[typeName] = namedType;
             if (isInterfaceType(namedType)) {
-                // Store implementations by interface.
                 for (const iface of namedType.getInterfaces()) {
                     if (isInterfaceType(iface)) {
                         let implementations = this._implementationsMap[iface.name];
-                        if (implementations === undefined) {
-                            implementations = this._implementationsMap[iface.name] = {
-                                objects: [],
-                                interfaces: [],
-                            };
-                        }
+                        implementations ??= this._implementationsMap[iface.name] = {
+                            objects: [],
+                            interfaces: [],
+                        };
                         implementations.interfaces.push(namedType);
                     }
                 }
             }
             else if (isObjectType(namedType)) {
-                // Store implementations by objects.
                 for (const iface of namedType.getInterfaces()) {
                     if (isInterfaceType(iface)) {
                         let implementations = this._implementationsMap[iface.name];
-                        if (implementations === undefined) {
-                            implementations = this._implementationsMap[iface.name] = {
-                                objects: [],
-                                interfaces: [],
-                            };
-                        }
+                        implementations ??= this._implementationsMap[iface.name] = {
+                            objects: [],
+                            interfaces: [],
+                        };
                         implementations.objects.push(namedType);
                     }
                 }
@@ -234,17 +150,6 @@ export class GraphQLSchema {
     getDirective(name) {
         return this.getDirectives().find((directive) => directive.name === name);
     }
-    /**
-     * This method looks up the field on the given type definition.
-     * It has special casing for the three introspection fields, `__schema`,
-     * `__type` and `__typename`.
-     *
-     * `__typename` is special because it can always be queried as a field, even
-     * in situations where no other fields are allowed, like on a Union.
-     *
-     * `__schema` and `__type` could get automatically added to the query type,
-     * but that would require mutating type definitions, which would cause issues.
-     */
     getField(parentType, fieldName) {
         switch (fieldName) {
             case SchemaMetaFieldDef.name:
@@ -258,8 +163,6 @@ export class GraphQLSchema {
             case TypeNameMetaFieldDef.name:
                 return TypeNameMetaFieldDef;
         }
-        // this function is part "hot" path inside executor and check presence
-        // of 'getFields' is faster than to use `!isUnionType`
         if ('getFields' in parentType) {
             return parentType.getFields()[fieldName];
         }
@@ -276,7 +179,7 @@ export class GraphQLSchema {
             extensions: this.extensions,
             astNode: this.astNode,
             extensionASTNodes: this.extensionASTNodes,
-            assumeValid: this.__validationErrors !== undefined,
+            assumeValid: this.assumeValid,
         };
     }
 }
@@ -308,3 +211,4 @@ function collectReferencedTypes(type, typeSet) {
     }
     return typeSet;
 }
+//# sourceMappingURL=schema.js.map

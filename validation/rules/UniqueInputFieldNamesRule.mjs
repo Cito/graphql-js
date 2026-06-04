@@ -1,13 +1,5 @@
 import { invariant } from "../../jsutils/invariant.mjs";
 import { GraphQLError } from "../../error/GraphQLError.mjs";
-/**
- * Unique input field names
- *
- * A GraphQL input object value is only valid if all supplied fields are
- * uniquely named.
- *
- * See https://spec.graphql.org/draft/#sec-Input-Object-Field-Uniqueness
- */
 export function UniqueInputFieldNamesRule(context) {
     const knownNameStack = [];
     let knownNames = new Map();
@@ -19,7 +11,8 @@ export function UniqueInputFieldNamesRule(context) {
             },
             leave() {
                 const prevKnownNames = knownNameStack.pop();
-                (prevKnownNames != null) || invariant(false);
+                if (!(prevKnownNames != null))
+                    invariant(false);
                 knownNames = prevKnownNames;
             },
         },
@@ -35,3 +28,4 @@ export function UniqueInputFieldNamesRule(context) {
         },
     };
 }
+//# sourceMappingURL=UniqueInputFieldNamesRule.js.map

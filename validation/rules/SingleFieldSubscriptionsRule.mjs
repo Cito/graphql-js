@@ -1,17 +1,9 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { Kind } from "../../language/kinds.mjs";
 import { collectFields } from "../../execution/collectFields.mjs";
-function toNodes(fieldGroup) {
-    return fieldGroup.map((fieldDetails) => fieldDetails.node);
+function toNodes(fieldDetailsList) {
+    return fieldDetailsList.map((fieldDetails) => fieldDetails.node);
 }
-/**
- * Subscriptions must only include a non-introspection field.
- *
- * A GraphQL subscription is valid only if it contains a single root field and
- * that root field is not an introspection field.
- *
- * See https://spec.graphql.org/draft/#sec-Single-root-field
- */
 export function SingleFieldSubscriptionsRule(context) {
     return {
         OperationDefinition(node) {
@@ -28,21 +20,27 @@ export function SingleFieldSubscriptionsRule(context) {
                             fragments[definition.name.value] = { definition };
                         }
                     }
-                    const { groupedFieldSet } = collectFields(schema, fragments, variableValues, subscriptionType, node);
+                    const { groupedFieldSet, forbiddenDirectiveInstances } = collectFields(schema, fragments, variableValues, subscriptionType, node.selectionSet, context.hideSuggestions, true);
+                    if (forbiddenDirectiveInstances.length > 0) {
+                        context.reportError(new GraphQLError(operationName != null
+                            ? `Subscription "${operationName}" must not use \`@skip\` or \`@include\` directives in the top level selection.`
+                            : 'Anonymous Subscription must not use `@skip` or `@include` directives in the top level selection.', { nodes: forbiddenDirectiveInstances }));
+                        return;
+                    }
                     if (groupedFieldSet.size > 1) {
-                        const fieldGroups = [...groupedFieldSet.values()];
-                        const extraFieldGroups = fieldGroups.slice(1);
-                        const extraFieldSelections = extraFieldGroups.flatMap((fieldGroup) => toNodes(fieldGroup));
+                        const fieldDetailsLists = [...groupedFieldSet.values()];
+                        const extraFieldDetailsLists = fieldDetailsLists.slice(1);
+                        const extraFieldSelections = extraFieldDetailsLists.flatMap((fieldDetailsList) => toNodes(fieldDetailsList));
                         context.reportError(new GraphQLError(operationName != null
                             ? `Subscription "${operationName}" must select only one top level field.`
                             : 'Anonymous Subscription must select only one top level field.', { nodes: extraFieldSelections }));
                     }
-                    for (const fieldGroup of groupedFieldSet.values()) {
-                        const fieldName = toNodes(fieldGroup)[0].name.value;
+                    for (const fieldDetailsList of groupedFieldSet.values()) {
+                        const fieldName = toNodes(fieldDetailsList)[0].name.value;
                         if (fieldName.startsWith('__')) {
                             context.reportError(new GraphQLError(operationName != null
                                 ? `Subscription "${operationName}" must not select an introspection top level field.`
-                                : 'Anonymous Subscription must not select an introspection top level field.', { nodes: toNodes(fieldGroup) }));
+                                : 'Anonymous Subscription must not select an introspection top level field.', { nodes: toNodes(fieldDetailsList) }));
                         }
                     }
                 }
@@ -50,3 +48,4 @@ export function SingleFieldSubscriptionsRule(context) {
         },
     };
 }
+//# sourceMappingURL=SingleFieldSubscriptionsRule.js.map

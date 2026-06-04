@@ -1,5 +1,6 @@
-import type { ASTVisitor } from '../../language/visitor.js';
-import type { ValidationContext } from '../ValidationContext.js';
+/** @category Validation Rules */
+import type { ASTVisitor } from "../../language/visitor.js";
+import type { ValidationContext } from "../ValidationContext.js";
 /**
  * Known fragment names
  *
@@ -7,5 +8,32 @@ import type { ValidationContext } from '../ValidationContext.js';
  * to fragments defined in the same document.
  *
  * See https://spec.graphql.org/draft/#sec-Fragment-spread-target-defined
+ * @param context - The validation context used while checking the document.
+ * @returns A visitor that reports validation errors for this rule.
+ * @example
+ * ```ts
+ * import { buildSchema, parse, validate } from 'graphql';
+ * import { KnownFragmentNamesRule } from 'graphql/validation';
+ *
+ * const schema = buildSchema(`
+ *   type Query {
+ *     name: String
+ *   }
+ * `);
+ *
+ * const invalidDocument = parse(`
+ *   { ...Missing }
+ * `);
+ * const invalidErrors = validate(schema, invalidDocument, [KnownFragmentNamesRule]);
+ *
+ * invalidErrors.length; // => 1
+ *
+ * const validDocument = parse(`
+ *   fragment NameFields on Query { name } query { ...NameFields }
+ * `);
+ * const validErrors = validate(schema, validDocument, [KnownFragmentNamesRule]);
+ *
+ * validErrors; // => []
+ * ```
  */
 export declare function KnownFragmentNamesRule(context: ValidationContext): ASTVisitor;

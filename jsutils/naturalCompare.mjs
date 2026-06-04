@@ -1,10 +1,3 @@
-/**
- * Returns a number indicating whether a reference string comes before, or after,
- * or is the same as the given string in natural sort order.
- *
- * See: https://en.wikipedia.org/wiki/Natural_sort_order
- *
- */
 export function naturalCompare(aStr, bStr) {
     let aIndex = 0;
     let bIndex = 0;
@@ -49,3 +42,4 @@ const DIGIT_9 = 57;
 function isDigit(code) {
     return !isNaN(code) && DIGIT_0 <= code && code <= DIGIT_9;
 }
+//# sourceMappingURL=naturalCompare.js.map

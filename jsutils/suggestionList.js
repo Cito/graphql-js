@@ -1,11 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.suggestionList = void 0;
-const naturalCompare_js_1 = require("./naturalCompare.js");
-/**
- * Given an invalid input string and a list of valid options, returns a filtered
- * list of valid options sorted based on their similarity with the input.
- */
+exports.suggestionList = suggestionList;
+const naturalCompare_ts_1 = require("./naturalCompare.js");
 function suggestionList(input, options) {
     const optionsByDistance = Object.create(null);
     const lexicalDistance = new LexicalDistance(input);
@@ -18,24 +14,9 @@ function suggestionList(input, options) {
     }
     return Object.keys(optionsByDistance).sort((a, b) => {
         const distanceDiff = optionsByDistance[a] - optionsByDistance[b];
-        return distanceDiff !== 0 ? distanceDiff : (0, naturalCompare_js_1.naturalCompare)(a, b);
+        return distanceDiff !== 0 ? distanceDiff : (0, naturalCompare_ts_1.naturalCompare)(a, b);
     });
 }
-exports.suggestionList = suggestionList;
-/**
- * Computes the lexical distance between strings A and B.
- *
- * The "distance" between two strings is given by counting the minimum number
- * of edits needed to transform string A into string B. An edit can be an
- * insertion, deletion, or substitution of a single character, or a swap of two
- * adjacent characters.
- *
- * Includes a custom alteration from Damerau-Levenshtein to treat case changes
- * as a single edit which helps identify mis-cased values with an edit distance
- * of 1.
- *
- * This distance can be useful for detecting typos in input or sorting
- */
 class LexicalDistance {
     constructor(input) {
         this._input = input;
@@ -52,7 +33,6 @@ class LexicalDistance {
             return 0;
         }
         const optionLowerCase = option.toLowerCase();
-        // Any case change counts as a single edit
         if (this._inputLowerCase === optionLowerCase) {
             return 1;
         }
@@ -78,11 +58,8 @@ class LexicalDistance {
             let smallestCell = (currentRow[0] = i);
             for (let j = 1; j <= bLength; j++) {
                 const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-                let currentCell = Math.min(upRow[j] + 1, // delete
-                currentRow[j - 1] + 1, // insert
-                upRow[j - 1] + cost);
+                let currentCell = Math.min(upRow[j] + 1, currentRow[j - 1] + 1, upRow[j - 1] + cost);
                 if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
-                    // transposition
                     const doubleDiagonalCell = rows[(i - 2) % 3][j - 2];
                     currentCell = Math.min(currentCell, doubleDiagonalCell + 1);
                 }
@@ -91,7 +68,6 @@ class LexicalDistance {
                 }
                 currentRow[j] = currentCell;
             }
-            // Early exit, since distance can't go smaller than smallest element of the previous row.
             if (smallestCell > threshold) {
                 return undefined;
             }
@@ -108,3 +84,4 @@ function stringToArray(str) {
     }
     return array;
 }
+//# sourceMappingURL=suggestionList.js.map

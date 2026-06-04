@@ -4,14 +4,6 @@ import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { isTypeDefinitionNode, isTypeSystemDefinitionNode, isTypeSystemExtensionNode, } from "../../language/predicates.mjs";
 import { introspectionTypes } from "../../type/introspection.mjs";
 import { specifiedScalarTypes } from "../../type/scalars.mjs";
-/**
- * Known type names
- *
- * A GraphQL document is only valid if referenced types (specifically
- * variable definitions and fragment conditions) are defined by the type schema.
- *
- * See https://spec.graphql.org/draft/#sec-Fragment-Spread-Type-Existence
- */
 export function KnownTypeNamesRule(context) {
     const { definitions } = context.getDocument();
     const existingTypesMap = context.getSchema()?.getTypeMap() ?? {};
@@ -28,7 +20,9 @@ export function KnownTypeNamesRule(context) {
                 if (isSDL && standardTypeNames.has(typeName)) {
                     return;
                 }
-                const suggestedTypes = suggestionList(typeName, isSDL ? [...standardTypeNames, ...typeNames] : [...typeNames]);
+                const suggestedTypes = context.hideSuggestions
+                    ? []
+                    : suggestionList(typeName, isSDL ? [...standardTypeNames, ...typeNames] : [...typeNames]);
                 context.reportError(new GraphQLError(`Unknown type "${typeName}".` + didYouMean(suggestedTypes), { nodes: node }));
             }
         },
@@ -39,3 +33,4 @@ function isSDLNode(value) {
     return ('kind' in value &&
         (isTypeSystemDefinitionNode(value) || isTypeSystemExtensionNode(value)));
 }
+//# sourceMappingURL=KnownTypeNamesRule.js.map

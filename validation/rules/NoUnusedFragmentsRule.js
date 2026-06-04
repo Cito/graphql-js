@@ -1,15 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NoUnusedFragmentsRule = void 0;
-const GraphQLError_js_1 = require("../../error/GraphQLError.js");
-/**
- * No unused fragments
- *
- * A GraphQL document is only valid if all fragment definitions are spread
- * within operations, or spread within other fragments spread within operations.
- *
- * See https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used
- */
+exports.NoUnusedFragmentsRule = NoUnusedFragmentsRule;
+const GraphQLError_ts_1 = require("../../error/GraphQLError.js");
 function NoUnusedFragmentsRule(context) {
     const fragmentNameUsed = new Set();
     const fragmentDefs = [];
@@ -29,7 +21,7 @@ function NoUnusedFragmentsRule(context) {
                 for (const fragmentDef of fragmentDefs) {
                     const fragName = fragmentDef.name.value;
                     if (!fragmentNameUsed.has(fragName)) {
-                        context.reportError(new GraphQLError_js_1.GraphQLError(`Fragment "${fragName}" is never used.`, {
+                        context.reportError(new GraphQLError_ts_1.GraphQLError(`Fragment "${fragName}" is never used.`, {
                             nodes: fragmentDef,
                         }));
                     }
@@ -38,4 +30,4 @@ function NoUnusedFragmentsRule(context) {
         },
     };
 }
-exports.NoUnusedFragmentsRule = NoUnusedFragmentsRule;
+//# sourceMappingURL=NoUnusedFragmentsRule.js.map

@@ -1,40 +1,36 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.print = void 0;
-const blockString_js_1 = require("./blockString.js");
-const printString_js_1 = require("./printString.js");
-const visitor_js_1 = require("./visitor.js");
-/**
- * Converts an AST into a string, using one set of reasonable
- * formatting rules.
- */
-function print(ast) {
-    return (0, visitor_js_1.visit)(ast, printDocASTReducer);
-}
 exports.print = print;
+const blockString_ts_1 = require("./blockString.js");
+const printString_ts_1 = require("./printString.js");
+const visitor_ts_1 = require("./visitor.js");
+function print(ast) {
+    return (0, visitor_ts_1.visit)(ast, printDocASTReducer);
+}
 const MAX_LINE_LENGTH = 80;
 const printDocASTReducer = {
     Name: { leave: (node) => node.value },
     Variable: { leave: (node) => '$' + node.name },
-    // Document
     Document: {
         leave: (node) => join(node.definitions, '\n\n'),
     },
     OperationDefinition: {
         leave(node) {
-            const varDefs = wrap('(', join(node.variableDefinitions, ', '), ')');
-            const prefix = join([
-                node.operation,
-                join([node.name, varDefs]),
-                join(node.directives, ' '),
-            ], ' ');
-            // Anonymous queries with no directives or variable definitions can use
-            // the query short form.
+            const varDefs = hasMultilineItems(node.variableDefinitions)
+                ? wrap('(\n', join(node.variableDefinitions, '\n'), '\n)')
+                : wrap('(', join(node.variableDefinitions, ', '), ')');
+            const prefix = wrap('', node.description, '\n') +
+                join([
+                    node.operation,
+                    join([node.name, varDefs]),
+                    join(node.directives, ' '),
+                ], ' ');
             return (prefix === 'query' ? '' : prefix + ' ') + node.selectionSet;
         },
     },
     VariableDefinition: {
-        leave: ({ variable, type, defaultValue, directives }) => variable +
+        leave: ({ variable, type, defaultValue, directives, description }) => wrap('', description, '\n') +
+            variable +
             ': ' +
             type +
             wrap(' = ', defaultValue) +
@@ -42,13 +38,10 @@ const printDocASTReducer = {
     },
     SelectionSet: { leave: ({ selections }) => block(selections) },
     Field: {
-        leave({ alias, name, arguments: args, nullabilityAssertion, directives, selectionSet, }) {
+        leave({ alias, name, arguments: args, directives, selectionSet }) {
             const prefix = join([wrap('', alias, ': '), name], '');
             return join([
                 wrappedLineAndArgs(prefix, args),
-                // Note: Client Controlled Nullability is experimental and may be
-                // changed or removed in the future.
-                nullabilityAssertion,
                 wrap(' ', join(directives, ' ')),
                 wrap(' ', selectionSet),
             ]);
@@ -56,23 +49,6 @@ const printDocASTReducer = {
     },
     Argument: { leave: ({ name, value }) => name + ': ' + value },
     FragmentArgument: { leave: ({ name, value }) => name + ': ' + value },
-    // Nullability Modifiers
-    ListNullabilityOperator: {
-        leave({ nullabilityAssertion }) {
-            return join(['[', nullabilityAssertion, ']']);
-        },
-    },
-    NonNullAssertion: {
-        leave({ nullabilityAssertion }) {
-            return join([nullabilityAssertion, '!']);
-        },
-    },
-    ErrorBoundary: {
-        leave({ nullabilityAssertion }) {
-            return join([nullabilityAssertion, '?']);
-        },
-    },
-    // Fragments
     FragmentSpread: {
         leave: ({ name, arguments: args, directives }) => {
             const prefix = '...' + name;
@@ -88,18 +64,15 @@ const printDocASTReducer = {
         ], ' '),
     },
     FragmentDefinition: {
-        leave: ({ name, typeCondition, variableDefinitions, directives, selectionSet, }) => 
-        // Note: fragment variable definitions are experimental and may be changed
-        // or removed in the future.
-        `fragment ${name}${wrap('(', join(variableDefinitions, ', '), ')')} ` +
+        leave: ({ name, typeCondition, variableDefinitions, directives, selectionSet, description, }) => wrap('', description, '\n') +
+            `fragment ${name}${wrap('(', join(variableDefinitions, ', '), ')')} ` +
             `on ${typeCondition} ${wrap('', join(directives, ' '), ' ')}` +
             selectionSet,
     },
-    // Value
     IntValue: { leave: ({ value }) => value },
     FloatValue: { leave: ({ value }) => value },
     StringValue: {
-        leave: ({ value, block: isBlockString }) => isBlockString === true ? (0, blockString_js_1.printBlockString)(value) : (0, printString_js_1.printString)(value),
+        leave: ({ value, block: isBlockString }) => isBlockString === true ? (0, blockString_ts_1.printBlockString)(value) : (0, printString_ts_1.printString)(value),
     },
     BooleanValue: { leave: ({ value }) => (value ? 'true' : 'false') },
     NullValue: { leave: () => 'null' },
@@ -120,15 +93,12 @@ const printDocASTReducer = {
         },
     },
     ObjectField: { leave: ({ name, value }) => name + ': ' + value },
-    // Directive
     Directive: {
         leave: ({ name, arguments: args }) => '@' + name + wrap('(', join(args, ', '), ')'),
     },
-    // Type
     NamedType: { leave: ({ name }) => name },
     ListType: { leave: ({ type }) => '[' + type + ']' },
     NonNullType: { leave: ({ type }) => type + '!' },
-    // Type System Definitions
     SchemaDefinition: {
         leave: ({ description, directives, operationTypes }) => wrap('', description, '\n') +
             join(['schema', join(directives, ' '), block(operationTypes)], ' '),
@@ -190,12 +160,13 @@ const printDocASTReducer = {
             join(['input', name, join(directives, ' '), block(fields)], ' '),
     },
     DirectiveDefinition: {
-        leave: ({ description, name, arguments: args, repeatable, locations }) => wrap('', description, '\n') +
+        leave: ({ description, name, arguments: args, directives, repeatable, locations, }) => wrap('', description, '\n') +
             'directive @' +
             name +
             (hasMultilineItems(args)
                 ? wrap('(\n', indent(join(args, '\n')), '\n)')
                 : wrap('(', join(args, ', '), ')')) +
+            wrap(' ', join(directives, ' ')) +
             (repeatable ? ' repeatable' : '') +
             ' on ' +
             join(locations, ' | '),
@@ -238,23 +209,27 @@ const printDocASTReducer = {
     InputObjectTypeExtension: {
         leave: ({ name, directives, fields }) => join(['extend input', name, join(directives, ' '), block(fields)], ' '),
     },
+    DirectiveExtension: {
+        leave: ({ name, directives }) => join(['extend directive @' + name, join(directives, ' ')], ' '),
+    },
+    TypeCoordinate: { leave: ({ name }) => name },
+    MemberCoordinate: {
+        leave: ({ name, memberName }) => join([name, wrap('.', memberName)]),
+    },
+    ArgumentCoordinate: {
+        leave: ({ name, fieldName, argumentName }) => join([name, wrap('.', fieldName), wrap('(', argumentName, ':)')]),
+    },
+    DirectiveCoordinate: { leave: ({ name }) => join(['@', name]) },
+    DirectiveArgumentCoordinate: {
+        leave: ({ name, argumentName }) => join(['@', name, wrap('(', argumentName, ':)')]),
+    },
 };
-/**
- * Given maybeArray, print an empty string if it is null or empty, otherwise
- * print all items together separated by separator if provided
- */
 function join(maybeArray, separator = '') {
-    return maybeArray?.filter((x) => x).join(separator) ?? '';
+    return (maybeArray?.filter((x) => x !== undefined && x !== '').join(separator) ?? '');
 }
-/**
- * Given array, print each item on its own line, wrapped in an indented `{ }` block.
- */
 function block(array) {
     return wrap('{\n', indent(join(array, '\n')), '\n}');
 }
-/**
- * If maybeString is not null or empty, then wrap with start and end, otherwise print an empty string.
- */
 function wrap(start, maybeString, end = '') {
     return maybeString != null && maybeString !== ''
         ? start + maybeString + end
@@ -264,8 +239,6 @@ function indent(str) {
     return wrap('  ', str.replaceAll('\n', '\n  '));
 }
 function hasMultilineItems(maybeArray) {
-    // FIXME: https://github.com/graphql/graphql-js/issues/2203
-    /* c8 ignore next */
     return maybeArray?.some((str) => str.includes('\n')) ?? false;
 }
 function wrappedLineAndArgs(prefix, args) {
@@ -275,3 +248,4 @@ function wrappedLineAndArgs(prefix, args) {
     }
     return argsLine;
 }
+//# sourceMappingURL=printer.js.map

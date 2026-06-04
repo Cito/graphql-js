@@ -1,7 +1,4 @@
 import { AccumulatorMap } from "./AccumulatorMap.mjs";
-/**
- * Groups array items into a Map, given a function to produce grouping key.
- */
 export function groupBy(list, keyFn) {
     const result = new AccumulatorMap();
     for (const item of list) {
@@ -9,3 +6,4 @@ export function groupBy(list, keyFn) {
     }
     return result;
 }
+//# sourceMappingURL=groupBy.js.map

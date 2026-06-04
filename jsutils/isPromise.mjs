@@ -1,7 +1,7 @@
-/**
- * Returns true if the value acts like a Promise, i.e. has a "then" function,
- * otherwise returns false.
- */
 export function isPromise(value) {
+    return value instanceof Promise;
+}
+export function isPromiseLike(value) {
     return typeof value?.then === 'function';
 }
+//# sourceMappingURL=isPromise.js.map

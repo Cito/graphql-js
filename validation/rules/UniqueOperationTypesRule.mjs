@@ -1,9 +1,4 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
-/**
- * Unique operation types
- *
- * A GraphQL document is only valid if it has only one type per operation.
- */
 export function UniqueOperationTypesRule(context) {
     const schema = context.getSchema();
     const definedOperationTypes = new Map();
@@ -19,8 +14,6 @@ export function UniqueOperationTypesRule(context) {
         SchemaExtension: checkOperationTypes,
     };
     function checkOperationTypes(node) {
-        // See: https://github.com/graphql/graphql-js/issues/2203
-        /* c8 ignore next */
         const operationTypesNodes = node.operationTypes ?? [];
         for (const operationType of operationTypesNodes) {
             const operation = operationType.operation;
@@ -38,3 +31,4 @@ export function UniqueOperationTypesRule(context) {
         return false;
     }
 }
+//# sourceMappingURL=UniqueOperationTypesRule.js.map

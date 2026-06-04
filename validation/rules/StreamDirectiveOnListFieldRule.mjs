@@ -1,11 +1,6 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
 import { isListType, isWrappingType } from "../../type/definition.mjs";
 import { GraphQLStreamDirective } from "../../type/directives.mjs";
-/**
- * Stream directives are used on list fields
- *
- * A GraphQL document is only valid if stream directives are used on list fields.
- */
 export function StreamDirectiveOnListFieldRule(context) {
     return {
         Directive(node) {
@@ -21,3 +16,4 @@ export function StreamDirectiveOnListFieldRule(context) {
         },
     };
 }
+//# sourceMappingURL=StreamDirectiveOnListFieldRule.js.map

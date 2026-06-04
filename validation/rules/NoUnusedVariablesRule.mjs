@@ -1,19 +1,9 @@
 import { GraphQLError } from "../../error/GraphQLError.mjs";
-/**
- * No unused variables
- *
- * A GraphQL operation is only valid if all variables defined by an operation
- * are used, either directly or within a spread fragment.
- *
- * See https://spec.graphql.org/draft/#sec-All-Variables-Used
- */
 export function NoUnusedVariablesRule(context) {
     return {
         FragmentDefinition(fragment) {
             const usages = context.getVariableUsages(fragment);
             const argumentNameUsed = new Set(usages.map(({ node }) => node.name.value));
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const variableDefinitions = fragment.variableDefinitions ?? [];
             for (const varDef of variableDefinitions) {
                 const argName = varDef.variable.name.value;
@@ -31,8 +21,6 @@ export function NoUnusedVariablesRule(context) {
                     operationVariableNameUsed.add(varName);
                 }
             }
-            // FIXME: https://github.com/graphql/graphql-js/issues/2203
-            /* c8 ignore next */
             const variableDefinitions = operation.variableDefinitions ?? [];
             for (const variableDef of variableDefinitions) {
                 const variableName = variableDef.variable.name.value;
@@ -45,3 +33,4 @@ export function NoUnusedVariablesRule(context) {
         },
     };
 }
+//# sourceMappingURL=NoUnusedVariablesRule.js.map

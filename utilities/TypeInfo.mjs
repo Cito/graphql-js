@@ -3,18 +3,8 @@ import { Kind } from "../language/kinds.mjs";
 import { getEnterLeaveForKind } from "../language/visitor.mjs";
 import { getNamedType, getNullableType, isCompositeType, isEnumType, isInputObjectType, isInputType, isListType, isObjectType, isOutputType, } from "../type/definition.mjs";
 import { typeFromAST } from "./typeFromAST.mjs";
-/**
- * TypeInfo is a utility class which, given a GraphQL schema, can keep track
- * of the current field and type definitions at any point in a GraphQL document
- * AST during a recursive descent by calling `enter(node)` and `leave(node)`.
- */
 export class TypeInfo {
-    constructor(schema, 
-    /**
-     * Initial type may be provided in rare cases to facilitate traversals
-     *  beginning somewhere other than documents.
-     */
-    initialType, fragmentSignatures) {
+    constructor(schema, initialType, fragmentSignatures) {
         this._schema = schema;
         this._typeStack = [];
         this._parentTypeStack = [];
@@ -80,10 +70,6 @@ export class TypeInfo {
     }
     enter(node) {
         const schema = this._schema;
-        // Note: many of the types below are explicitly typed as "unknown" to drop
-        // any assumptions of a valid schema to ensure runtime types are properly
-        // checked before continuing since TypeInfo is used as part of validation
-        // which occurs before guarantees of schema and document validity.
         switch (node.kind) {
             case Kind.DOCUMENT: {
                 const fragmentSignatures = getFragmentSignatures(node);
@@ -146,7 +132,7 @@ export class TypeInfo {
                     }
                 }
                 this._argument = argDef;
-                this._defaultValueStack.push(argDef ? argDef.defaultValue : undefined);
+                this._defaultValueStack.push(argDef?.default ?? argDef?.defaultValue ?? undefined);
                 this._inputTypeStack.push(isInputType(argType) ? argType : undefined);
                 break;
             }
@@ -165,8 +151,7 @@ export class TypeInfo {
                 const listType = getNullableType(this.getInputType());
                 const itemType = isListType(listType)
                     ? listType.ofType
-                    : listType;
-                // List positions never have a default value.
+                    : undefined;
                 this._defaultValueStack.push(undefined);
                 this._inputTypeStack.push(isInputType(itemType) ? itemType : undefined);
                 break;
@@ -181,7 +166,7 @@ export class TypeInfo {
                         inputFieldType = inputField.type;
                     }
                 }
-                this._defaultValueStack.push(inputField ? inputField.defaultValue : undefined);
+                this._defaultValueStack.push(inputField?.default ?? inputField?.defaultValue ?? undefined);
                 this._inputTypeStack.push(isInputType(inputFieldType) ? inputFieldType : undefined);
                 break;
             }
@@ -195,13 +180,12 @@ export class TypeInfo {
                 break;
             }
             default:
-            // Ignore other nodes
         }
     }
     leave(node) {
         switch (node.kind) {
             case Kind.DOCUMENT:
-                this._fragmentSignaturesByName = /* c8 ignore start */ () => null /* c8 ignore end */;
+                this._fragmentSignaturesByName = () => null;
                 break;
             case Kind.SELECTION_SET:
                 this._parentTypeStack.pop();
@@ -244,7 +228,6 @@ export class TypeInfo {
                 this._enumValue = null;
                 break;
             default:
-            // Ignore other nodes
         }
     }
 }
@@ -264,10 +247,6 @@ function getFragmentSignatures(document) {
     }
     return fragmentSignatures;
 }
-/**
- * Creates a new visitor instance which maintains a provided TypeInfo instance
- * along with visiting visitor.
- */
 export function visitWithTypeInfo(typeInfo, visitor) {
     return {
         enter(...args) {
@@ -297,3 +276,4 @@ export function visitWithTypeInfo(typeInfo, visitor) {
         },
     };
 }
+//# sourceMappingURL=TypeInfo.js.map

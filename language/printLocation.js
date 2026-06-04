@@ -1,17 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.printSourceLocation = exports.printLocation = void 0;
-const location_js_1 = require("./location.js");
-/**
- * Render a helpful description of the location in the GraphQL Source document.
- */
-function printLocation(location) {
-    return printSourceLocation(location.source, (0, location_js_1.getLocation)(location.source, location.start));
-}
 exports.printLocation = printLocation;
-/**
- * Render a helpful description of the location in the GraphQL Source document.
- */
+exports.printSourceLocation = printSourceLocation;
+const location_ts_1 = require("./location.js");
+function printLocation(location) {
+    return printSourceLocation(location.source, (0, location_ts_1.getLocation)(location.source, location.start));
+}
 function printSourceLocation(source, sourceLocation) {
     const firstLineColumnOffset = source.locationOffset.column - 1;
     const body = ''.padStart(firstLineColumnOffset) + source.body;
@@ -23,7 +17,6 @@ function printSourceLocation(source, sourceLocation) {
     const locationStr = `${source.name}:${lineNum}:${columnNum}\n`;
     const lines = body.split(/\r\n|[\n\r]/g);
     const locationLine = lines[lineIndex];
-    // Special case for minified documents
     if (locationLine.length > 120) {
         const subLineIndex = Math.floor(columnNum / 80);
         const subLineColumnNum = columnNum % 80;
@@ -43,14 +36,12 @@ function printSourceLocation(source, sourceLocation) {
     }
     return (locationStr +
         printPrefixedLines([
-            // Lines specified like this: ["prefix", "string"],
             [`${lineNum - 1} |`, lines[lineIndex - 1]],
             [`${lineNum} |`, locationLine],
             ['|', '^'.padStart(columnNum)],
             [`${lineNum + 1} |`, lines[lineIndex + 1]],
         ]));
 }
-exports.printSourceLocation = printSourceLocation;
 function printPrefixedLines(lines) {
     const existingLines = lines.filter(([_, line]) => line !== undefined);
     const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));
@@ -58,3 +49,4 @@ function printPrefixedLines(lines) {
         .map(([prefix, line]) => prefix.padStart(padLen) + (line ? ' ' + line : ''))
         .join('\n');
 }
+//# sourceMappingURL=printLocation.js.map
