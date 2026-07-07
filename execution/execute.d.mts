@@ -115,7 +115,10 @@ export declare function executeIgnoringIncremental(args: ExecutionArgs): Promise
  * import assert from 'node:assert';
  * import { parse } from 'graphql/language';
  * import { buildSchema } from 'graphql/utilities';
- * import { executeRootSelectionSet, validateExecutionArgs } from 'graphql/execution';
+ * import {
+ *   executeRootSelectionSet,
+ *   validateExecutionArgs,
+ * } from 'graphql/execution';
  *
  * const schema = buildSchema('type Query { greeting: String }');
  * const validatedArgs = validateExecutionArgs({
@@ -198,7 +201,10 @@ export declare function executeSync(args: ExecutionArgs): ExecutionResult;
  * import assert from 'node:assert';
  * import { parse } from 'graphql/language';
  * import { buildSchema } from 'graphql/utilities';
- * import { executeSubscriptionEvent, validateSubscriptionArgs } from 'graphql/execution';
+ * import {
+ *   executeSubscriptionEvent,
+ *   validateSubscriptionArgs,
+ * } from 'graphql/execution';
  *
  * const schema = buildSchema(`
  *   type Query {
@@ -371,7 +377,10 @@ export declare function subscribe(args: ExecutionArgs): PromiseOrValue<AsyncGene
  * import assert from 'node:assert';
  * import { parse } from 'graphql/language';
  * import { buildSchema } from 'graphql/utilities';
- * import { createSourceEventStream, validateSubscriptionArgs } from 'graphql/execution';
+ * import {
+ *   createSourceEventStream,
+ *   validateSubscriptionArgs,
+ * } from 'graphql/execution';
  *
  * async function* greetings() {
  *   yield { greeting: 'Hello' };
@@ -523,7 +532,10 @@ export declare const defaultFieldResolver: GraphQLFieldResolver<unknown, unknown
  * import assert from 'node:assert';
  * import { parse } from 'graphql/language';
  * import { buildSchema } from 'graphql/utilities';
- * import { mapSourceToResponseEvent, validateSubscriptionArgs } from 'graphql/execution';
+ * import {
+ *   mapSourceToResponseEvent,
+ *   validateSubscriptionArgs,
+ * } from 'graphql/execution';
  *
  * async function* events() {
  *   yield { greeting: 'Hello' };

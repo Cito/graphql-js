@@ -30,7 +30,7 @@ export interface ParseOptions {
      * in the `variableDefinitions` field of the FragmentDefinitionNode.
      * Fragment spread arguments will be represented in the `arguments` field of FragmentSpreadNode.
      * @example
-     * ```graphql
+     * ```graphql prettier-ignore
      * {
      *   t { ...A(var: true) }
      * }
@@ -40,17 +40,6 @@ export interface ParseOptions {
      * ```
      */
     experimentalFragmentArguments?: boolean | undefined;
-    /**
-     * EXPERIMENTAL:
-     *
-     * If enabled, the parser will parse directives on directive definitions.
-     * This syntax is not part of the GraphQL specification and may change.
-     * @example
-     * ```graphql
-     * directive @foo @bar on FIELD
-     * ```
-     */
-    experimentalDirectivesOnDirectiveDefinitions?: boolean | undefined;
     /**
      * Internal parser hook for GraphQL.js entry points that need to parse a
      * restricted grammar with an alternate lexer.
@@ -78,21 +67,22 @@ export interface ParseOptions {
  * // This variant enables parser options and provides an explicit lexer.
  * import { Lexer, Source, parse } from 'graphql/language';
  *
- * const document = parse(`
+ * const document = parse(
+ *   `
+ *     {
+ *       t { ...A(var: true) }
+ *     }
+ *     fragment A($var: Boolean = false) on T {
+ *       name
+ *     }
+ *   `,
  *   {
- *     t { ...A(var: true) }
- *   }
- *   fragment A($var: Boolean = false) on T {
- *     name
- *   }
- * `, {
- *   experimentalFragmentArguments: true,
- *   maxTokens: 80,
- *   noLocation: true,
- * });
- * const directiveDocument = parse('directive @foo @bar on FIELD', {
- *   experimentalDirectivesOnDirectiveDefinitions: true,
- * });
+ *     experimentalFragmentArguments: true,
+ *     maxTokens: 80,
+ *     noLocation: true,
+ *   },
+ * );
+ * const directiveDocument = parse('directive @foo @bar on FIELD');
  * const source = new Source('{ hero }');
  * const lexerDocument = parse(source, { lexer: new Lexer(source) });
  *
@@ -561,6 +551,7 @@ export declare class Parser {
      * TypeSystemExtension :
      *   - SchemaExtension
      *   - TypeExtension
+     *   - DirectiveExtension
      *
      * TypeExtension :
      *   - ScalarTypeExtension
@@ -568,8 +559,7 @@ export declare class Parser {
      *   - InterfaceTypeExtension
      *   - UnionTypeExtension
      *   - EnumTypeExtension
-     *   - InputObjectTypeDefinition
-     *   - DirectiveDefinitionExtension
+     *   - InputObjectTypeExtension
      *
      * @internal
      */
@@ -633,11 +623,11 @@ export declare class Parser {
      * @internal
      */
     parseInputObjectTypeExtension(): InputObjectTypeExtensionNode;
-    parseDirectiveDefinitionExtension(): DirectiveExtensionNode;
+    parseDirectiveExtension(): DirectiveExtensionNode;
     /**
      * ```
      * DirectiveDefinition :
-     *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
+     *   - Description? directive @ Name ArgumentsDefinition? Directives[Const]? `repeatable`? on DirectiveLocations
      * ```
      *
      * @internal

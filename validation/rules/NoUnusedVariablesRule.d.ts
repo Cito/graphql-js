@@ -25,7 +25,9 @@ import type { ValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   query ($id: ID) { name }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [NoUnusedVariablesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   NoUnusedVariablesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

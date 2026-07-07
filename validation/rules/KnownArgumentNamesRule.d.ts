@@ -25,7 +25,9 @@ import type { SDLValidationContext, ValidationContext } from "../ValidationConte
  * const invalidDocument = parse(`
  *   { field(unknown: "1") }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [KnownArgumentNamesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   KnownArgumentNamesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

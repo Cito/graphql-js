@@ -19,14 +19,18 @@ import type { ASTValidationContext } from "../ValidationContext.mjs";
  * const invalidDocument = parse(`
  *   { __schema { types { fields { type { fields { type { fields { name } } } } } } } }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [MaxIntrospectionDepthRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   MaxIntrospectionDepthRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *
  * const validDocument = parse(`
  *   { __schema { queryType { name } } }
  * `);
- * const validErrors = validate(schema, validDocument, [MaxIntrospectionDepthRule]);
+ * const validErrors = validate(schema, validDocument, [
+ *   MaxIntrospectionDepthRule,
+ * ]);
  *
  * validErrors; // => []
  * ```

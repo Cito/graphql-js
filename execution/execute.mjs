@@ -148,6 +148,7 @@ export function validateExecutionArgs(args) {
     let operation;
     const fragmentDefinitions = Object.create(null);
     const fragments = Object.create(null);
+    const fragmentVariableSignatureErrors = [];
     for (const definition of document.definitions) {
         switch (definition.kind) {
             case Kind.OPERATION_DEFINITION:
@@ -167,11 +168,16 @@ export function validateExecutionArgs(args) {
                 fragmentDefinitions[definition.name.value] = definition;
                 let variableSignatures;
                 if (definition.variableDefinitions) {
-                    variableSignatures = Object.create(null);
+                    const signatures = Object.create(null);
                     for (const varDef of definition.variableDefinitions) {
                         const signature = getVariableSignature(schema, varDef);
-                        variableSignatures[signature.name] = signature;
+                        if (signature instanceof GraphQLError) {
+                            fragmentVariableSignatureErrors.push(signature);
+                            continue;
+                        }
+                        signatures[signature.name] = signature;
                     }
+                    variableSignatures = signatures;
                 }
                 fragments[definition.name.value] = { definition, variableSignatures };
                 break;
@@ -184,6 +190,9 @@ export function validateExecutionArgs(args) {
             return [new GraphQLError(`Unknown operation named "${operationName}".`)];
         }
         return [new GraphQLError('Must provide an operation.')];
+    }
+    if (fragmentVariableSignatureErrors.length > 0) {
+        return fragmentVariableSignatureErrors;
     }
     const variableDefinitions = operation.variableDefinitions ?? [];
     const hideSuggestions = args.hideSuggestions ?? false;

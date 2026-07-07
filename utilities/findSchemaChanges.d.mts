@@ -29,6 +29,7 @@ export declare const DangerousChangeType: {
     readonly OPTIONAL_ARG_ADDED: "OPTIONAL_ARG_ADDED";
     readonly IMPLEMENTED_INTERFACE_ADDED: "IMPLEMENTED_INTERFACE_ADDED";
     readonly ARG_DEFAULT_VALUE_CHANGE: "ARG_DEFAULT_VALUE_CHANGE";
+    readonly INPUT_FIELD_DEFAULT_VALUE_CHANGE: "INPUT_FIELD_DEFAULT_VALUE_CHANGE";
 };
 /** Categories of schema changes that may be dangerous for existing operations. */
 export type DangerousChangeType = (typeof DangerousChangeType)[keyof typeof DangerousChangeType];
@@ -46,6 +47,7 @@ export declare const SafeChangeType: {
     readonly FIELD_CHANGED_KIND_SAFE: "FIELD_CHANGED_KIND_SAFE";
     readonly ARG_CHANGED_KIND_SAFE: "ARG_CHANGED_KIND_SAFE";
     readonly ARG_DEFAULT_VALUE_ADDED: "ARG_DEFAULT_VALUE_ADDED";
+    readonly INPUT_FIELD_DEFAULT_VALUE_ADDED: "INPUT_FIELD_DEFAULT_VALUE_ADDED";
 };
 /** Categories of schema changes that are considered safe for existing operations. */
 export type SafeChangeType = (typeof SafeChangeType)[keyof typeof SafeChangeType];

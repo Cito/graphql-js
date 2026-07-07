@@ -242,8 +242,16 @@ export declare function visit<R>(root: ASTNode, visitor: ASTReducer<R>, visitorK
  * visit(
  *   document,
  *   visitInParallel([
- *     { Field: (node) => { events.push(`field:${node.name.value}`); } },
- *     { Name: (node) => { events.push(`name:${node.value}`); } },
+ *     {
+ *       Field: (node) => {
+ *         events.push(`field:${node.name.value}`);
+ *       },
+ *     },
+ *     {
+ *       Name: (node) => {
+ *         events.push(`name:${node.value}`);
+ *       },
+ *     },
  *   ]),
  * );
  *

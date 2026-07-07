@@ -36,7 +36,7 @@ import { Source } from "../language/source.mjs";
  *
  * Becomes:
  *
- * ```graphql
+ * ```graphql prettier-ignore
  * query SomeQuery($foo:String!$bar:String){someField(foo:$foo bar:$bar){a b{c d}}}
  * ```
  * @example SDL source
@@ -54,7 +54,7 @@ import { Source } from "../language/source.mjs";
  *
  * Becomes:
  *
- * ```graphql
+ * ```graphql prettier-ignore
  * """Type description""" type Foo{"""Field description""" bar:String}
  * ```
  * @example

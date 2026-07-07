@@ -25,14 +25,18 @@ import type { ValidationContext } from "../ValidationContext.mjs";
  * const invalidDocument = parse(`
  *   fragment Bad on String { length }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [FragmentsOnCompositeTypesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   FragmentsOnCompositeTypesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *
  * const validDocument = parse(`
  *   fragment Good on Query { name }
  * `);
- * const validErrors = validate(schema, validDocument, [FragmentsOnCompositeTypesRule]);
+ * const validErrors = validate(schema, validDocument, [
+ *   FragmentsOnCompositeTypesRule,
+ * ]);
  *
  * validErrors; // => []
  * ```

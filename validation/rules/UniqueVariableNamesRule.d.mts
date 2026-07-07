@@ -21,7 +21,9 @@ import type { ASTValidationContext } from "../ValidationContext.mjs";
  * const invalidDocument = parse(`
  *   query ($id: ID, $id: ID) { field(arg: $id) }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [UniqueVariableNamesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   UniqueVariableNamesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

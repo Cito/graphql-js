@@ -45,7 +45,6 @@ function buildSchema(source, options) {
     const document = (0, parser_ts_1.parse)(source, {
         noLocation: options?.noLocation,
         experimentalFragmentArguments: options?.experimentalFragmentArguments,
-        experimentalDirectivesOnDirectiveDefinitions: options?.experimentalDirectivesOnDirectiveDefinitions,
     });
     return buildASTSchema(document, {
         assumeValidSDL: options?.assumeValidSDL,

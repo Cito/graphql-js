@@ -143,7 +143,7 @@ export interface GraphQLSchemaExtensions {
 export declare class GraphQLSchema {
     /** Human-readable description for this schema element, if provided. */
     description: Maybe<string>;
-    /** Extension fields to include in the formatted result. */
+    /** Custom extension fields reserved for users. */
     extensions: Readonly<GraphQLSchemaExtensions>;
     /** AST node from which this schema element was built, if available. */
     astNode: Maybe<SchemaDefinitionNode>;
@@ -164,11 +164,7 @@ export declare class GraphQLSchema {
      * @example
      * ```ts
      * // Create a schema with the required query root.
-     * import {
-     *   GraphQLObjectType,
-     *   GraphQLSchema,
-     *   GraphQLString,
-     * } from 'graphql/type';
+     * import { GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql/type';
      *
      * const Query = new GraphQLObjectType({
      *   name: 'Query',
@@ -240,7 +236,7 @@ export declare class GraphQLSchema {
      *   directives: [authDirective],
      *   extensions: { owner: 'platform' },
      *   astNode: schemaDocument.definitions[0],
-     *   extensionASTNodes: [ schemaDocument.definitions[1] ],
+     *   extensionASTNodes: [schemaDocument.definitions[1]],
      *   assumeValid: true,
      * });
      *
@@ -629,7 +625,7 @@ export interface GraphQLSchemaConfig extends GraphQLSchemaValidationOptions {
     types?: Maybe<ReadonlyArray<GraphQLNamedType>>;
     /** Directives available in this schema or applied to this AST node. */
     directives?: Maybe<ReadonlyArray<GraphQLDirective>>;
-    /** Extension fields to include in the formatted result. */
+    /** Custom extension fields reserved for users. */
     extensions?: Maybe<Readonly<GraphQLSchemaExtensions>>;
     /** AST node from which this schema element was built, if available. */
     astNode?: Maybe<SchemaDefinitionNode>;

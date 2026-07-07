@@ -181,9 +181,9 @@ function validateName(context, node) {
     }
 }
 function validateTypes(context) {
-    const validateInputObjectNonNullCircularRefs = createInputObjectNonNullCircularRefsValidator(context);
     const validateInputObjectDefaultValueCircularRefs = createInputObjectDefaultValueCircularRefsValidator(context);
     const typeMap = context.schema.getTypeMap();
+    const finiteValueStates = new Map();
     for (const type of Object.values(typeMap)) {
         if (!isNamedType(type)) {
             context.reportError(`Expected GraphQL named type but got: ${inspect(type)}.`, type.astNode);
@@ -208,9 +208,19 @@ function validateTypes(context) {
         }
         else if (isInputObjectType(type)) {
             validateInputFields(context, type);
-            validateInputObjectNonNullCircularRefs(type);
+            initializeInputObjectFiniteValueState(type);
             validateInputObjectDefaultValueCircularRefs(type);
         }
+    }
+    detectInputObjectNonFiniteValues(context, finiteValueStates);
+    function initializeInputObjectFiniteValueState(inputObj) {
+        finiteValueStates.set(inputObj, {
+            inputObj,
+            targets: [],
+            dependents: [],
+            unresolvedTargetCount: 0,
+            hasFiniteValue: false,
+        });
     }
 }
 function validateFields(context, type) {
@@ -373,42 +383,103 @@ function validateOneOfInputObjectField(type, field, context) {
         context.reportError(`OneOf input field ${type}.${field.name} cannot have a default value.`, field.astNode);
     }
 }
-function createInputObjectNonNullCircularRefsValidator(context) {
+function detectInputObjectNonFiniteValues(context, finiteValueStates) {
+    const inputObjectsWithFiniteValues = [];
+    for (const state of finiteValueStates.values()) {
+        const inputObj = state.inputObj;
+        const fields = Object.values(inputObj.getFields());
+        for (const field of fields) {
+            const target = getFiniteValueTarget(inputObj, field.type);
+            if (target === undefined) {
+                continue;
+            }
+            state.targets.push({ field, target });
+            const targetState = finiteValueStates.get(target);
+            if (targetState !== undefined) {
+                targetState.dependents.push(state);
+            }
+        }
+        if (inputObj.isOneOf) {
+            if (fields.length === 0 || state.targets.length < fields.length) {
+                markInputObjectHasFiniteValue(state);
+            }
+        }
+        else {
+            state.unresolvedTargetCount = state.targets.length;
+            if (state.targets.length === 0) {
+                markInputObjectHasFiniteValue(state);
+            }
+        }
+    }
+    let nextFiniteValueState;
+    while ((nextFiniteValueState = inputObjectsWithFiniteValues.pop()) !== undefined) {
+        for (const dependentState of nextFiniteValueState.dependents) {
+            if (dependentState.hasFiniteValue) {
+                continue;
+            }
+            if (dependentState.inputObj.isOneOf) {
+                markInputObjectHasFiniteValue(dependentState);
+                continue;
+            }
+            --dependentState.unresolvedTargetCount;
+            if (dependentState.unresolvedTargetCount === 0) {
+                markInputObjectHasFiniteValue(dependentState);
+            }
+        }
+    }
     const visitedTypes = new Set();
     const fieldPath = [];
-    const fieldPathIndexByTypeName = Object.create(null);
-    return detectCycleRecursive;
-    function detectCycleRecursive(inputObj) {
+    const fieldPathIndexByType = new Map();
+    for (const state of finiteValueStates.values()) {
+        if (!state.hasFiniteValue) {
+            reportCycleRecursive(state);
+        }
+    }
+    function markInputObjectHasFiniteValue(finiteValueState) {
+        if (!finiteValueState.hasFiniteValue) {
+            finiteValueState.hasFiniteValue = true;
+            inputObjectsWithFiniteValues.push(finiteValueState);
+        }
+    }
+    function reportCycleRecursive(state) {
+        const inputObj = state.inputObj;
         if (visitedTypes.has(inputObj)) {
             return;
         }
         visitedTypes.add(inputObj);
-        fieldPathIndexByTypeName[inputObj.name] = fieldPath.length;
-        const fields = Object.values(inputObj.getFields());
-        for (const field of fields) {
-            if (isNonNullType(field.type) && isInputObjectType(field.type.ofType)) {
-                const fieldType = field.type.ofType;
-                const cycleIndex = fieldPathIndexByTypeName[fieldType.name];
-                fieldPath.push({
-                    fieldStr: `${inputObj}.${field.name}`,
-                    astNode: field.astNode,
-                });
-                if (cycleIndex === undefined) {
-                    detectCycleRecursive(fieldType);
-                }
-                else {
-                    const cyclePath = fieldPath.slice(cycleIndex);
-                    const pathStr = cyclePath
-                        .map((fieldObj) => fieldObj.fieldStr)
-                        .join(', ');
-                    context.reportError(`Invalid circular reference. The Input Object ${fieldType} references itself ${cyclePath.length > 1
-                        ? 'via the non-null fields:'
-                        : 'in the non-null field'} ${pathStr}.`, cyclePath.map((fieldObj) => fieldObj.astNode));
-                }
-                fieldPath.pop();
+        fieldPathIndexByType.set(inputObj, fieldPath.length);
+        for (const { field, target } of state.targets) {
+            const targetState = finiteValueStates.get(target);
+            if (targetState?.hasFiniteValue !== false) {
+                continue;
             }
+            const cycleIndex = fieldPathIndexByType.get(target);
+            fieldPath.push({
+                fieldStr: `${inputObj}.${field.name}`,
+                astNode: field.astNode,
+            });
+            if (cycleIndex === undefined) {
+                reportCycleRecursive(targetState);
+            }
+            else {
+                const cyclePath = fieldPath.slice(cycleIndex);
+                const pathStr = cyclePath.map((p) => p.fieldStr).join(', ');
+                context.reportError(`Input Object ${target} cannot be provided a finite value because it references itself through fields: ${pathStr}.`, cyclePath.map((p) => p.astNode));
+            }
+            fieldPath.pop();
         }
-        fieldPathIndexByTypeName[inputObj.name] = undefined;
+        fieldPathIndexByType.delete(inputObj);
+    }
+}
+function getFiniteValueTarget(inputObj, fieldType) {
+    if (inputObj.isOneOf) {
+        if (isInputObjectType(fieldType)) {
+            return fieldType;
+        }
+        return;
+    }
+    if (isNonNullType(fieldType) && isInputObjectType(fieldType.ofType)) {
+        return fieldType.ofType;
     }
 }
 function createInputObjectDefaultValueCircularRefsValidator(context) {

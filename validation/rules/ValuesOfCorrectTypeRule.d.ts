@@ -24,7 +24,9 @@ import type { ValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   { count(limit: "many") }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [ValuesOfCorrectTypeRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   ValuesOfCorrectTypeRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

@@ -26,7 +26,9 @@ import type { IntrospectionOptions, IntrospectionQuery } from "./getIntrospectio
  * `);
  *
  * const introspection = introspectionFromSchema(schema);
- * const urlType = introspection.__schema.types.find((type) => type.name === 'Url');
+ * const urlType = introspection.__schema.types.find(
+ *   (type) => type.name === 'Url',
+ * );
  *
  * urlType.specifiedByURL; // => 'https://url.spec.whatwg.org/'
  * ```
@@ -52,7 +54,9 @@ import type { IntrospectionOptions, IntrospectionQuery } from "./getIntrospectio
  *   experimentalDirectiveDeprecation: false,
  *   oneOf: false,
  * });
- * const urlType = introspection.__schema.types.find((type) => type.name === 'Url');
+ * const urlType = introspection.__schema.types.find(
+ *   (type) => type.name === 'Url',
+ * );
  * const deprecatedDirective = introspection.__schema.directives.find(
  *   (directive) => directive.name === 'deprecated',
  * );

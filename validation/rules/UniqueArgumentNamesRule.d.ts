@@ -24,7 +24,9 @@ import type { ASTValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   { field(arg: "1", arg: "2") }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [UniqueArgumentNamesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   UniqueArgumentNamesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

@@ -74,7 +74,6 @@ export declare function buildASTSchema(documentAST: DocumentNode, options?: Buil
  *   'directive @tag on FIELD_DEFINITION\n' +
  *     'directive @compose @tag on FIELD_DEFINITION',
  *   {
- *     experimentalDirectivesOnDirectiveDefinitions: true,
  *     experimentalFragmentArguments: true,
  *     noLocation: true,
  *   },

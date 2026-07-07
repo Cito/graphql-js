@@ -24,7 +24,9 @@ import type { ValidationContext } from "../ValidationContext.mjs";
  * const invalidDocument = parse(`
  *   query ($id: ID) { field(arg: $missing) }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [NoUndefinedVariablesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   NoUndefinedVariablesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

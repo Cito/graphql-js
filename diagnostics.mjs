@@ -54,14 +54,15 @@ export function traceMixed(channel, contextInput, fn) {
             return result;
         }
         channel.end.publish(context);
-        channel.asyncStart.publish(context);
         return result.then((value) => {
             context.result = value;
+            channel.asyncStart.publish(context);
             channel.asyncEnd.publish(context);
             return value;
         }, (err) => {
             context.error = err;
             channel.error.publish(context);
+            channel.asyncStart.publish(context);
             channel.asyncEnd.publish(context);
             throw err;
         });

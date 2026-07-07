@@ -39,7 +39,9 @@ import type { ValidationContext } from "../../ValidationContext.js";
  * const invalidDocument = parse(`
  *   { oldName }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [NoDeprecatedCustomRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   NoDeprecatedCustomRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

@@ -8,7 +8,11 @@ import { GraphQLSchema } from "../type/schema.js";
  * @returns A copy of the schema with types, fields, arguments, and values sorted lexicographically.
  * @example
  * ```ts
- * import { buildSchema, lexicographicSortSchema, printSchema } from 'graphql/utilities';
+ * import {
+ *   buildSchema,
+ *   lexicographicSortSchema,
+ *   printSchema,
+ * } from 'graphql/utilities';
  *
  * const schema = buildSchema(`
  *   type Query {

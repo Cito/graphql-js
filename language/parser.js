@@ -690,10 +690,7 @@ class Parser {
                 case 'input':
                     return this.parseInputObjectTypeExtension();
                 case 'directive':
-                    if (this._options.experimentalDirectivesOnDirectiveDefinitions) {
-                        return this.parseDirectiveDefinitionExtension();
-                    }
-                    break;
+                    return this.parseDirectiveExtension();
             }
         }
         throw this.unexpected(keywordToken);
@@ -821,7 +818,7 @@ class Parser {
             fields,
         });
     }
-    parseDirectiveDefinitionExtension() {
+    parseDirectiveExtension() {
         const start = this._lexer.token;
         this.expectKeyword('extend');
         this.expectKeyword('directive');
@@ -844,10 +841,7 @@ class Parser {
         this.expectToken(tokenKind_ts_1.TokenKind.AT);
         const name = this.parseName();
         const args = this.parseArgumentDefs();
-        const directives = this._options
-            .experimentalDirectivesOnDirectiveDefinitions
-            ? this.parseConstDirectives()
-            : undefined;
+        const directives = this.parseConstDirectives();
         const repeatable = this.expectOptionalKeyword('repeatable');
         this.expectKeyword('on');
         const locations = this.parseDirectiveLocations();

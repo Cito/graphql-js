@@ -87,7 +87,8 @@ function getDirectiveLocationForASTPath(ancestors) {
             const parentNode = ancestors.at(-3);
             if (!(parentNode != null && 'kind' in parentNode))
                 invariant(false);
-            return parentNode.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION
+            return parentNode.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION ||
+                parentNode.kind === Kind.INPUT_OBJECT_TYPE_EXTENSION
                 ? DirectiveLocation.INPUT_FIELD_DEFINITION
                 : DirectiveLocation.ARGUMENT_DEFINITION;
         }

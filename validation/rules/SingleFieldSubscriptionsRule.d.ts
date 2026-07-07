@@ -29,14 +29,18 @@ import type { ValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   subscription { a b }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [SingleFieldSubscriptionsRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   SingleFieldSubscriptionsRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *
  * const validDocument = parse(`
  *   subscription { a }
  * `);
- * const validErrors = validate(schema, validDocument, [SingleFieldSubscriptionsRule]);
+ * const validErrors = validate(schema, validDocument, [
+ *   SingleFieldSubscriptionsRule,
+ * ]);
  *
  * validErrors; // => []
  * ```

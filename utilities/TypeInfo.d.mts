@@ -80,7 +80,7 @@ export declare class TypeInfo {
      *   name === 'GreetingFields'
      *     ? {
      *         definition: fragmentDefinition,
-     *         variableDefinitions: new Map([ ['name', variableDefinition] ]),
+     *         variableDefinitions: new Map([['name', variableDefinition]]),
      *       }
      *     : undefined,
      * );

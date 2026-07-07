@@ -1,6 +1,6 @@
 {
   "name": "graphql",
-  "version": "17.0.0-rc.0",
+  "version": "17.0.2",
   "description": "A Query Language and Runtime which can target any service.",
   "license": "MIT",
   "typesVersions": {
@@ -32,9 +32,6 @@
   ],
   "engines": {
     "node": "^22.0.0 || ^24.0.0 || ^25.0.0 || >=26.0.0"
-  },
-  "publishConfig": {
-    "tag": "rc"
   },
   "main": "index.js",
   "module": "index.mjs",

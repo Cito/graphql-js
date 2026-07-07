@@ -24,7 +24,9 @@ import type { ValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   { ...Missing }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [KnownFragmentNamesRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   KnownFragmentNamesRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

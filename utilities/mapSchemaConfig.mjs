@@ -126,7 +126,7 @@ export function mapSchemaConfig(schemaConfig, configMapperMapFn) {
             let mappedField = {
                 ...field,
                 type: getType(field.type),
-                args: mapArgs(field.args, parentTypeName, fieldName),
+                args: mapArgs(field.args, fieldName, parentTypeName),
             };
             const mapper = configMapperMap[SchemaElementKind.FIELD];
             if (mapper) {

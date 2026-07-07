@@ -31,6 +31,7 @@ export const DangerousChangeType = {
     OPTIONAL_ARG_ADDED: 'OPTIONAL_ARG_ADDED',
     IMPLEMENTED_INTERFACE_ADDED: 'IMPLEMENTED_INTERFACE_ADDED',
     ARG_DEFAULT_VALUE_CHANGE: 'ARG_DEFAULT_VALUE_CHANGE',
+    INPUT_FIELD_DEFAULT_VALUE_CHANGE: 'INPUT_FIELD_DEFAULT_VALUE_CHANGE',
 };
 export const SafeChangeType = {
     DESCRIPTION_CHANGED: 'DESCRIPTION_CHANGED',
@@ -45,6 +46,7 @@ export const SafeChangeType = {
     FIELD_CHANGED_KIND_SAFE: 'FIELD_CHANGED_KIND_SAFE',
     ARG_CHANGED_KIND_SAFE: 'ARG_CHANGED_KIND_SAFE',
     ARG_DEFAULT_VALUE_ADDED: 'ARG_DEFAULT_VALUE_ADDED',
+    INPUT_FIELD_DEFAULT_VALUE_ADDED: 'INPUT_FIELD_DEFAULT_VALUE_ADDED',
 };
 export function findBreakingChanges(oldSchema, newSchema) {
     return findSchemaChanges(oldSchema, newSchema).filter((change) => change.type in BreakingChangeType);
@@ -251,10 +253,33 @@ function findInputObjectTypeChanges(oldType, newType) {
     }
     for (const [oldField, newField] of fieldsDiff.persisted) {
         const isSafe = isChangeSafeForInputObjectFieldOrFieldArg(oldField.type, newField.type);
+        const oldDefaultValueStr = getDefaultValue(oldField);
+        const newDefaultValueStr = getDefaultValue(newField);
         if (!isSafe) {
             schemaChanges.push({
                 type: BreakingChangeType.FIELD_CHANGED_KIND,
                 description: `Field ${newField} changed type from ${oldField.type} to ${newField.type}.`,
+            });
+        }
+        else if (oldDefaultValueStr !== undefined) {
+            if (newDefaultValueStr === undefined) {
+                schemaChanges.push({
+                    type: DangerousChangeType.INPUT_FIELD_DEFAULT_VALUE_CHANGE,
+                    description: `${oldField} defaultValue was removed.`,
+                });
+            }
+            else if (oldDefaultValueStr !== newDefaultValueStr) {
+                schemaChanges.push({
+                    type: DangerousChangeType.INPUT_FIELD_DEFAULT_VALUE_CHANGE,
+                    description: `${oldField} has changed defaultValue from ${oldDefaultValueStr} to ${newDefaultValueStr}.`,
+                });
+            }
+        }
+        else if (newDefaultValueStr !== undefined &&
+            oldDefaultValueStr === undefined) {
+            schemaChanges.push({
+                type: SafeChangeType.INPUT_FIELD_DEFAULT_VALUE_ADDED,
+                description: `${oldField} added a defaultValue ${newDefaultValueStr}.`,
             });
         }
         else if (oldField.type.toString() !== newField.type.toString()) {

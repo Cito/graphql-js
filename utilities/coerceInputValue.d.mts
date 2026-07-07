@@ -68,7 +68,10 @@ export declare function coerceInputValue(inputValue: unknown, type: GraphQLInput
  *   },
  * });
  *
- * coerceInputLiteral(parseValue('{ stars: 5, comment: "Loved it" }'), ReviewInput); // => { stars: 5, comment: 'Loved it' }
+ * coerceInputLiteral(
+ *   parseValue('{ stars: 5, comment: "Loved it" }'),
+ *   ReviewInput,
+ * ); // => { stars: 5, comment: 'Loved it' }
  * coerceInputLiteral(parseValue('{ comment: "Missing" }'), ReviewInput); // => undefined
  * ```
  * @example
@@ -87,11 +90,9 @@ export declare function coerceInputValue(inputValue: unknown, type: GraphQLInput
  * `);
  * const document = parse('query ($stars: Int = 5) { review(stars: $stars) }');
  * const operation = document.definitions[0];
- * const result = getVariableValues(
- *   schema,
- *   operation.variableDefinitions,
- *   { stars: '4' },
- * );
+ * const result = getVariableValues(schema, operation.variableDefinitions, {
+ *   stars: '4',
+ * });
  *
  * assert('variableValues' in result);
  *

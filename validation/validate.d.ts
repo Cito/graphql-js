@@ -67,12 +67,9 @@ export interface ValidationOptions {
  * `);
  * const document = parse('{ missingOne missingTwo }');
  *
- * const errors = validate(
- *   schema,
- *   document,
- *   [FieldsOnCorrectTypeRule],
- *   { maxErrors: 1 },
- * );
+ * const errors = validate(schema, document, [FieldsOnCorrectTypeRule], {
+ *   maxErrors: 1,
+ * });
  *
  * errors.length; // => 2
  * errors[1].message; // => 'Too many validation errors, error limit reached. Validation aborted.'

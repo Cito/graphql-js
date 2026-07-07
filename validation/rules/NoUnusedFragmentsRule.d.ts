@@ -24,7 +24,9 @@ import type { ASTValidationContext } from "../ValidationContext.js";
  * const invalidDocument = parse(`
  *   fragment Unused on Query { name } query { name }
  * `);
- * const invalidErrors = validate(schema, invalidDocument, [NoUnusedFragmentsRule]);
+ * const invalidErrors = validate(schema, invalidDocument, [
+ *   NoUnusedFragmentsRule,
+ * ]);
  *
  * invalidErrors.length; // => 1
  *

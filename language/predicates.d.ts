@@ -88,7 +88,11 @@ export declare function isValueNode(node: ASTNode): node is ValueNode;
  * @returns True when the AST node is a constant value node.
  * @example
  * ```ts
- * import { parseConstValue, parseValue, isConstValueNode } from 'graphql/language';
+ * import {
+ *   parseConstValue,
+ *   parseValue,
+ *   isConstValueNode,
+ * } from 'graphql/language';
  *
  * const value = parseConstValue('[42]');
  * const variable = parseValue('$id');
