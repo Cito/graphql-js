@@ -42,6 +42,7 @@ function forbidDeferStream({ context, operationType, rootType, fragments, select
             if (visitedFragments.has(fragmentName)) {
                 continue;
             }
+            visitedFragments.add(fragmentName);
             const fragment = fragments.get(fragmentName);
             if (fragment) {
                 const defer = getDeferDirective(selection);
@@ -57,7 +58,6 @@ function forbidDeferStream({ context, operationType, rootType, fragments, select
                     visitedFragments,
                 });
             }
-            visitedFragments.add(fragmentName);
         }
         else if (selection.kind === 'InlineFragment') {
             const defer = getDeferDirective(selection);

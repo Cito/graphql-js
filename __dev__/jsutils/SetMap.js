@@ -1,3 +1,3 @@
 const { enableDevMode } = require('../../devMode.js');
 enableDevMode();
-module.exports = require('../../jsutils/getBySet.js');
+module.exports = require('../../jsutils/SetMap.js');

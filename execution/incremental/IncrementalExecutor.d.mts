@@ -2,6 +2,7 @@
 import type { ObjMap } from "../../jsutils/ObjMap.mjs";
 import type { Path } from "../../jsutils/Path.mjs";
 import type { PromiseOrValue } from "../../jsutils/PromiseOrValue.mjs";
+import type { SetMap } from "../../jsutils/SetMap.mjs";
 import type { GraphQLError, GraphQLFormattedError } from "../../error/GraphQLError.mjs";
 import type { GraphQLObjectType, GraphQLOutputType, GraphQLResolveInfo } from "../../type/definition.mjs";
 import type { DeferUsage, FieldDetailsList, GroupedFieldSet } from "../collectFields.mjs";
@@ -265,7 +266,7 @@ export declare class IncrementalExecutor<TExperimental = ExperimentalIncremental
     buildRootExecutionPlan(originalGroupedFieldSet: GroupedFieldSet): ExecutionPlan;
     executeCollectedSubfields(parentType: GraphQLObjectType, sourceValue: unknown, path: Path | undefined, originalGroupedFieldSet: GroupedFieldSet, newDeferUsages: ReadonlyArray<DeferUsage>, deliveryGroupMap: ReadonlyMap<DeferUsage, DeliveryGroup> | undefined): PromiseOrValue<ObjMap<unknown>>;
     buildSubExecutionPlan(originalGroupedFieldSet: GroupedFieldSet): ExecutionPlan;
-    collectExecutionGroups(parentType: GraphQLObjectType, sourceValue: unknown, path: Path | undefined, newGroupedFieldSets: Map<DeferUsageSet, GroupedFieldSet>, deliveryGroupMap: ReadonlyMap<DeferUsage, DeliveryGroup>): void;
+    collectExecutionGroups(parentType: GraphQLObjectType, sourceValue: unknown, path: Path | undefined, newGroupedFieldSets: SetMap<DeferUsage, GroupedFieldSet>, deliveryGroupMap: ReadonlyMap<DeferUsage, DeliveryGroup>): void;
     executeExecutionGroup(deliveryGroups: ReadonlyArray<DeliveryGroup>, parentType: GraphQLObjectType, sourceValue: unknown, path: Path | undefined, groupedFieldSet: GroupedFieldSet, deliveryGroupMap: ReadonlyMap<DeferUsage, DeliveryGroup>): PromiseOrValue<ExecutionGroupResult>;
     buildExecutionGroupResult(deliveryGroups: ReadonlyArray<DeliveryGroup>, path: Path | undefined, result: ObjMap<unknown>): ExecutionGroupResult;
     getIncrementalWork(): IncrementalWork;
